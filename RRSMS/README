@@ -1,0 +1,39 @@
+See https://www.twilio.com/docs/quickstart/python/sms
+
+I'm using virtualenv: see http://docs.python-guide.org/en/latest/dev/virtualenvs/
+and I have a requirements file I'll try to keep up to date, so you can just 
+pip install -r requirements.txt once you're in your venv
+
+There seem to be two ways to use the API:
+  1. Manually send/receive messages, we repeatedly 
+     query the server for any incoming messages, and
+     for each one, we process it, and manually send 
+     a response.
+  2. Create a server which will respond to HTTP requests, 
+     a GET request from twilio will contain an SMS we are
+     receiving, and then we send back a message to twilio.
+
+Both are pretty simple, but I'm leaning towards working with 
+the first method for now. It should be simple enough to switch though. 
+
+EDIT: scratch that, on further research, it seems making some sort of server
+is the best solution.
+
+To make life easier, I've created Phone.py, which is a simple little script
+to simulate sending/receiving texts. Basically, it connects with the 
+Flask app Server.py on localhost. It then reads messages from stdin,
+which it formats as a POST request and then sends them to the server,
+and then prints the response. It tries to look just like the requests
+that Twilio sends, so our server doesn't actually know if its sending 
+messages to twilio, or just to our testing service. Because of this,
+the server sends back xml responses, so we have to do a quick parsing of
+the xml to make it a bit more readable.
+
+Currently the server is very simple, it sets up a basic Flask app
+which will receive GET/POST requests, and send back a Twilio-xml
+formatted response.
+
+I did a couple quick tests using my phone, and it does work! But its
+a bit of a pain to make it available to the outside web, but once we 
+have a more useful prototype we can spin off some heroku website or similar
+and test it properly.
