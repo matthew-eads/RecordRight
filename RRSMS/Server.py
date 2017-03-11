@@ -1,7 +1,7 @@
 import twilio.twiml
 import sys
 import argparse
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, session
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--production', action='store_true')
@@ -23,7 +23,6 @@ def main():
     resp.message(return_body)
     return str(resp)
     
-
         
 if __name__ == '__main__':
     app.run(debug=True)

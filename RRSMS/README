@@ -37,3 +37,34 @@ I did a couple quick tests using my phone, and it does work! But its
 a bit of a pain to make it available to the outside web, but once we 
 have a more useful prototype we can spin off some heroku website or similar
 and test it properly.
+
+--------------------------------------------------------------------------------
+
+So now we need to come up with a texting interface. In general there are only 
+a couple things we want people to do: fetch existing data from their record,
+and update that data. 
+
+To fetch:
+
+-------------------------------------------------------------help
+Welcome to RecordRight, <patient_name>---------------------------
+text '1' to fetch information from your record,------------------
+'2' to update information in your record,------------------------
+or '3' for more help.--------------------------------------------
+----------------------------------------------------------------1
+For notes from your recent visit, send '1',----------------------
+for recent test results, send '2', to seach----------------------
+for a different field, send '3' followed by the------------------
+name of the field. Send '9' to quit this transaction.------------
+----------------------------------------------------------------1
+<RECENT NOTES>
+Thanks, byeee.
+
+So to keep track of a conversation, and where someone is in the
+menu, we basically need to create a flowchart for each possible
+interaction, and then enumerate each state. This number can
+then be easily stored in the session cookie (which twilio stores
+for us), and then used to determine what to do. 
+
+For example, our process_message function would take in a couple
+arguments, the message and the session 'number'
