@@ -27,7 +27,7 @@ def main():
     twilio_resp = twilio.twiml.Response()
     twilio_resp.message(return_body)
     resp = make_response(str(twilio_resp))
-    resp.set_cookie('menu_state', str(session['menu_state']))
+    resp.set_cookie('menu_state', str(session.get('menu_state',0)))
     
     return resp
     
