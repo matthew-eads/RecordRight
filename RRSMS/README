@@ -39,6 +39,21 @@ have a more useful prototype we can spin off some heroku website or similar
 and test it properly.
 
 --------------------------------------------------------------------------------
+I've now set up a heroku app to handle this. From the root (RecordRight/, not RRSMS/),
+you can `git subtree push --prefix RRSMS heroku master`, which should be all you need
+to do. Navigating to stark-hollows-42415.herokuapp.com should show a brief error message,
+but you should be able to text the twilio number and get an actual response.
+`heroku logs` shows the logs
+`heroku ps` should show whether or not anything is running,
+if not `heroku scale web=1` should spin it up.
+`heroku domains` will show where it lives, and `heroku open` will open it in a browser.
+`heroku run bash` is a useful way to debug manually if needed.
+All this requires installing heroku, but there are easy guides on their website.
+
+Procfile tells heroku how to run the app - right now it just runs python Server.py,
+but in the future there are much better ways to deploy it for ~~production~~.
+
+--------------------------------------------------------------------------------
 
 So now we need to come up with a texting interface. In general there are only 
 a couple things we want people to do: fetch existing data from their record,
