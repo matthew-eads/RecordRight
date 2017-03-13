@@ -11,6 +11,7 @@ production = args.production
 
 port = int(os.getenv('PORT', '5000'))
 
+
 SECRET_KEY = 'top secret'
 app =  Flask(__name__) 
 app.config.from_object(__name__)
@@ -75,5 +76,5 @@ def process_message(message, from_number):
     return return_body
         
 if __name__ == '__main__':
-    app.run(debug=True, port=port)
+    app.run(debug=True, port=port, host='0.0.0.0')
     
