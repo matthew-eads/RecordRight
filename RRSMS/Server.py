@@ -1,5 +1,5 @@
 import twilio.twiml
-import sys
+import sys,os 
 import argparse
 from flask import Flask, request, redirect, session, make_response
 
@@ -8,6 +8,8 @@ parser.add_argument('-p', '--production', action='store_true')
 
 args = parser.parse_args(sys.argv[1:])
 production = args.production
+
+port = os.getenv('PORT', 5000)
 
 SECRET_KEY = 'top secret'
 app =  Flask(__name__) 
@@ -73,5 +75,5 @@ def process_message(message, from_number):
     return return_body
         
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=port)
     
