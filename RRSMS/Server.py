@@ -9,7 +9,7 @@ parser.add_argument('-p', '--production', action='store_true')
 args = parser.parse_args(sys.argv[1:])
 production = args.production
 
-port = os.getenv('PORT', 5000)
+port = int(os.getenv('PORT', '5000'))
 
 SECRET_KEY = 'top secret'
 app =  Flask(__name__) 
