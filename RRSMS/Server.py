@@ -2,6 +2,8 @@ import twilio.twiml
 import sys,os 
 import argparse
 from flask import Flask, request, redirect, session, make_response
+from database_test import scoped_session
+from models_test import Patient
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--production', action='store_true')
@@ -45,11 +47,13 @@ def main():
 def process_message(message, from_number, menu_state):
     return_body = ""
     new_menu_state = 0
-    #menu_state = session.get('menu_state', 0)
-    print("Processing message, have menu_state {}".format(menu_state))
+
+    #TODO some sort of check for more than one patients with the same number
+    patient = Patient.query.filter(Patient.phone_number == from_number).first()
+    print("Processing message for {}, have menu_state {}".format(patient.name, menu_state))
     if message is None or from_number is None:
         # We received a badly formed message, be upset
-        return_body = ("We're sorry, but there has been an internal error."
+        return_body = ("We're sorry, but there has been an internal error. "
                        "Please try sending your message again")
         
     elif menu_state == 0:

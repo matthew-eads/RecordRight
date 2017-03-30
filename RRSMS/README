@@ -41,7 +41,7 @@ and test it properly.
 --------------------------------------------------------------------------------
 I've now set up a heroku app to handle this. From the root (RecordRight/, not RRSMS/),
 you can `git subtree push --prefix RRSMS heroku master`, which should be all you need
-to do. Navigating to stark-hollows-42415.herokuapp.com should show a brief error message,
+to do. Navigating to record-right.herokuapp.com should show a brief error message,
 but you should be able to text the twilio number and get an actual response.
 `heroku logs` shows the logs
 `heroku ps` should show whether or not anything is running,
