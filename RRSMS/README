@@ -83,3 +83,33 @@ for us), and then used to determine what to do.
 
 For example, our process_message function would take in a couple
 arguments, the message and the session 'number'
+
+----------------------------------------------------------------------------------
+Here is an enumeration of menu states:
+0: New message from existing patient
+1: Patient responds to welcome message - either asks to fetch or update
+2: Fetch, message should contain field to retrieve
+3: Update, message should contain field to update
+
+9: New message from unknown number - we want to register a new patient
+10: Patient texts back full name
+11: Found a match, ask to confirm by texting birth date
+12: No match :( Tell them to contact hospital?
+13: Text back dob, either tell them its wrong and try again, or its
+    a match, and we go to menu state 1
+
+Here is the flowchart of menu states:
+
+
+
+
+
+                |-1
+       |-11--13-|
+9--10--|        |-13
+       |-12
+
+
+     |-2
+0--1-|-1
+     |-3
