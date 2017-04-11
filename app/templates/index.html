@@ -6,23 +6,22 @@
     </head>
   
     <body>
-
-    		<div class="name">
-        		<p id="name">Aristana Scourtas</p>
-        	</div>
-        	<div class="studies">
-        		<p id="cs">Computer Science</p> 
-        		<p id="biopsych">Biopsychology</p>
-        		<p id="premed">Pre-medicine</p>
-        	</div>
-        	<div class="links">
-        		<div class="bio">
-        			<a href="/bio.html">Get to know me personally</a>
-        		</div>
-        		<div class="resume">
-        			<a href="/resume.html">Get to know me professionally</a>
-        		</div>
-        	</div>
+		<div class = "header">
+		<p> RECORD RIGHT </p> 
+		<p> <img src = "{{url_for('static', filename = 'logo.png')}}"> </p>
+		<!---	<p id = "RR"> {{users}}</p> -->
+		</div>
+		<table>
+			<tr> 
+				<th>Patient</th>
+				<th>DOB</th>
+			</tr>
+			{% for user in users %}
+			<tr>
+				<th><p><a href= "{{ url_for('patient_data')}}"> {{user.name}}</a></p></th>
+				<th>{{user.DOB}}</th>
+			</tr>
+			{% endfor %}
     </body>
   
 </html>
