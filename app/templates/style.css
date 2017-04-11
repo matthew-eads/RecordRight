@@ -1,7 +1,7 @@
 /*a simple stylesheet*/
 
 body {
-	/*font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;*/
+	font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
 	font-size: 14pt;
 	background-color: #aaff80;
 }
