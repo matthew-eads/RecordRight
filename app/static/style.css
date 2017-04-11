@@ -3,7 +3,7 @@
 body {
 	font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
 	font-size: 14pt;
-	background-color: #0099cc;
+	background-color: #aaff80;
 }
 
 #header {
@@ -14,7 +14,7 @@ body {
 
 .Title {
 	font-size: 30px;
-	color: #0000ff;
+	/*color: #0000ff;*/
 }
 
 .Subtitle {
