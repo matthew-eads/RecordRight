@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Welcome to RecordRight</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
+    </head>
+  
+    <body>
+    		<p> <div style = "float: right;"><img src = "{{url_for('static', filename = 'logo.png')}}"> </div> </p>
+		<div class = "Header">
+		<!--<p> <div style = "float: right;"><img src = "{{url_for('static', filename = 'logo.png')}}"> </div> </p>-->
+		<h1> RECORD RIGHT </h1> 
+		<!---	<p id = "RR"> {{users}}</p> -->
+		</div>
+		<table>
+			<tr> 
+				<th>Patient</th>
+				<th>DOB</th>
+			</tr>
+			{% for user in users %}
+			<tr>
+				<th><p><a href= "{{ url_for('patient_data', user=user)}}"> {{user.name}}</a></p></th>
+				<th>{{user.DOB}}</th>
+			</tr>
+			{% endfor %}
+    </body>
+  
+</html>
