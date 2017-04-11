@@ -18,7 +18,7 @@
 			</tr>
 			{% for user in users %}
 			<tr>
-				<th><p><a href= "{{ url_for('patient_data')}}"> {{user.name}}</a></p></th>
+				<th><p><a href= "{{ url_for('patient_data', user=user)}}"> {{user.name}}</a></p></th>
 				<th>{{user.DOB}}</th>
 			</tr>
 			{% endfor %}
