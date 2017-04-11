@@ -7,14 +7,16 @@ body {
 }
 
 .Header {
-	/*text-align: center;*/
+	text-align: center;
 	font-size: 25px;
 	font-family: "Times New Roman", Times, serif;
+	background-color: #ffffff;
+	font-color: #009900;
 }
-
+/*
 .Title {
 	font-size: 30px;
-	/*color: #0000ff;*/
+	color: #0000ff;
 }
 
 .Subtitle {
@@ -41,5 +43,5 @@ IMG.Picture {
 .CenteredText {
 	display: block;
 	text-align: center;
-}
+}*/
 
