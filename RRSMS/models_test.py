@@ -1,14 +1,14 @@
 from sqlalchemy import Column, Integer, String
-from database_test import Base
+from Server import app, db
 
-class Patient(Base):
+class Patient(db.Model):
     __tablename__ = 'patients'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    birth_year = Column(Integer)
-    birth_month = Column(Integer)
-    birth_day = Column(Integer)
-    phone_number = Column(String)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    birth_year = db.Column(db.Integer)
+    birth_month = db.Column(db.Integer)
+    birth_day = db.Column(db.Integer)
+    phone_number = db.Column(db.String)
     def __init__(self, name=None, birth_year=None, birth_month=None, birth_day=None, phone_number=None):
         self.name = name
         self.birth_year = birth_year

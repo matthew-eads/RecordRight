@@ -90,6 +90,7 @@ Here is an enumeration of menu states:
 1: Patient responds to welcome message - either asks to fetch or update
 2: Fetch, message should contain field to retrieve
 3: Update, message should contain field to update
+4: Update, message should contain new value for the field
 
 9: New message from unknown number - we want to register a new patient
 10: Patient texts back full name
@@ -112,4 +113,4 @@ Here is the flowchart of menu states:
 
      |-2
 0--1-|-1
-     |-3
+     |-3-4
