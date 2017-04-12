@@ -12,7 +12,7 @@ parser.add_argument('-p', '--production', action='store_true')
 args = parser.parse_args(sys.argv[1:])
 production = args.production
 
-port = int(os.getenv('PORT', '5000'))
+port = int(os.getenv('PORT', '5001'))
 
 SQLALCHEMY_ECHO = False if production else True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
