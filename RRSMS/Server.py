@@ -2,9 +2,10 @@ import twilio.twiml
 import sys,os 
 import argparse
 import datetime
-from flask import Flask, request, redirect, session, make_response
+from flask import Flask, request, redirect, session, make_response, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
+from functools import wraps
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--production', action='store_true')
@@ -47,6 +48,50 @@ def main():
     
     return resp
     
+# check_auth, authenticate, requires_auth taken from http://flask.pocoo.org/snippets/8/
+# authored by Armin Ronacher
+def check_auth(username, password):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    return username == 'admin' and password == 'pickabetterpassword'
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+# Adds a patient to the db - see update_db.py
+@app.route('/update', methods=["GET", "POST"])
+@requires_auth
+def update_db():
+    print("Updating db")
+    try:
+        p = models_test.Patient(name=request.values['name'],
+                                birth_year=int(request.values['birth_year']),
+                                birth_month=int(request.values['birth_month']),
+                                birth_day=int(request.values['birth_day']),
+                                phone_number=request.values['phone_number'])
+        # TODO: check not duplicate
+        db.session.add(p)
+        db.session.commit()
+        return Response("Successfully updated db", 200, {})
+    except Exception as e:
+        print("Error updating db: {}".format(e))
+        return Response("Error updating db", 200, {})
+        
+
 # Bit of a gnarly function, but its goal is pretty simple
 # We take in the body of the SMS, which in general should just be
 # a number, and the number that sent the message.
