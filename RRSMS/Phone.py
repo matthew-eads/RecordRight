@@ -17,7 +17,7 @@ def random_phone_number():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--url", default="http://localhost")
-    parser.add_argument("-p", "--port", default="5000")
+    parser.add_argument("-p", "--port", default="5001") 
     parser.add_argument("-n", "--number", help="This is the pretend phone number to use",
                         default=random_phone_number())
     args = parser.parse_args(sys.argv[1:])

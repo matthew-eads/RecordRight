@@ -1,20 +1,24 @@
 /*a simple stylesheet*/
 
 body {
-	/*font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;*/
+	font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
 	font-size: 14pt;
 	background-color: #aaff80;
 }
 
 .Header {
-	/*text-align: center;*/
-	font-size: 25px;
-	font-family: "Times New Roman", Times, serif;
+	text-align: center;
+	font-size: 48px;
+	font-family: copperplate;
+	/*font-family: Impact, Charcoal, sans-serif;*/
+	/*font-family: "Times New Roman", Times, serif;*/
+	background-color: #ffffff;
+	color: #009900;
 }
-
+/*
 .Title {
 	font-size: 30px;
-	/*color: #0000ff;*/
+	color: #0000ff;
 }
 
 .Subtitle {
@@ -41,5 +45,5 @@ IMG.Picture {
 .CenteredText {
 	display: block;
 	text-align: center;
-}
+}*/
 
