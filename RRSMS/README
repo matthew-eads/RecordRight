@@ -29,16 +29,8 @@ messages to twilio, or just to our testing service. Because of this,
 the server sends back xml responses, so we have to do a quick parsing of
 the xml to make it a bit more readable.
 
-Currently the server is very simple, it sets up a basic Flask app
-which will receive GET/POST requests, and send back a Twilio-xml
-formatted response.
-
-I did a couple quick tests using my phone, and it does work! But its
-a bit of a pain to make it available to the outside web, but once we 
-have a more useful prototype we can spin off some heroku website or similar
-and test it properly.
-
 --------------------------------------------------------------------------------
+
 I've now set up a heroku app to handle this. From the root (RecordRight/, not RRSMS/),
 you can `git subtree push --prefix RRSMS heroku master`, which should be all you need
 to do. Navigating to record-right.herokuapp.com should show a brief error message,
@@ -47,11 +39,24 @@ but you should be able to text the twilio number and get an actual response.
 `heroku ps` should show whether or not anything is running,
 if not `heroku scale web=1` should spin it up.
 `heroku domains` will show where it lives, and `heroku open` will open it in a browser.
-`heroku run bash` is a useful way to debug manually if needed.
+`heroku run bash` or `heroku run python` is a useful way to debug manually if needed.
 All this requires installing heroku, but there are easy guides on their website.
 
 Procfile tells heroku how to run the app - right now it just runs python Server.py,
 but in the future there are much better ways to deploy it for ~~production~~.
+
+--------------------------------------------------------------------------------
+
+Heroku uses postgres, and unless we want to pay money, we'll have to roll with that.
+Because we can't actually copy over a database, I wrote a handler in Server.py
+for /update, which handles the POST'ing of new patient info, and saves it to the db.
+The script update_db.py can then be used to update the heroku db, or the local postgres db.
+To handle db migrations, alembic should work. Running `alembic revision -m "message"`
+will create a template migration file, edit that to add new columns or whatever,
+and then `alembic upgrade head` should do the rest. Of course you also need to 
+propogate the changes in the models_test.py file, and throughout the other scripts.
+
+--------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
 

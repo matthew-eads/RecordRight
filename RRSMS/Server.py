@@ -152,35 +152,23 @@ def process_message(message, from_number, menu_state):
     return (return_body, new_menu_state)
 
 # for a message such as 'notes', 'Notes', 'my notes', 
-# attempts to return the correct column name (notes)
-def get_column_name(message):
-    # just return the message for now
-    return message
-
-# Returns the appropriate data for the field specified in
-# the message for the given patient.
+# attempts to return the correct column value
 def select_column(message, patient):
     message = message.lower()
-    try:
-        # a bit of a hack
-        col = get_column_name(message)
-        if col is None:
-            return_body = "Unknown field {}".format(message)
-            new_menu_state = 0
-        else:
-            # maybe query by id instead...
-            stmt = text("SELECT {} FROM patients WHERE name = '{}'".format(col, patient.name))
-            conn = db.session.connection()
-            res = conn.execute(stmt)
-            all_results = []
-            for row in res:
-                all_results.append(row[0])
-            return_body = str(all_results[0])
-            new_menu_state = 0
-            conn.close()
-    except Exception as e:
-        print("Error selecting: {}".format(e))
-    return return_body
+    # a bit hacky... but good enough
+    if "name" in message:
+        return (patient.name, "name")
+    elif "phone" in message or "number" in message:
+        return (patient.phone_number, "phone_number")
+    elif "address" in message:
+        return (patient.address, "address")
+    elif "notes" in message:
+        return (patient.notes, "notes")
+    elif "dob" in message or "birth" in message:
+        # this is a bit of an odd one because we split
+        # the dob accross 3 columns
+        return ("{}-{}-{}".format(patient.birth_year, patient.birth_month, patient.birth_day), "dob")
+    return None
 
 ## All process_menu_x functions should take in the message and the patient record
 ## as arguments, and return a tuple of (return_body, new_menu_state)
@@ -190,7 +178,8 @@ def process_menu_0(message, patient):
     # isn't at this time important, we just give them
     # the options
     return (("Welcome to RecordRight, text '1' to fetch information, "
-                   "'2' to update information in your record, or '3' for more help.")
+             "'2' to update information in your record, or '3' for more help."
+             "At any time, you can send 'HELP' to get more information.")
             , 1)
 
 def process_menu_1(message, patient):
@@ -198,10 +187,12 @@ def process_menu_1(message, patient):
     try:
         req = int(message)
         if req == 1:
-            return_body = ("Please reply with the name of the field you want fetched (ex: 'notes' or 'name').")
+            return_body = ("Please reply with the name of the field you want fetched. Fields are:"
+                           "date of birth, name, address, or notes.")
             new_menu_state = 2
         elif req == 2:
-            return_body = ("Please reply with the name of the field you want updated (ex: 'address').")
+            return_body = ("Please reply with the name of the field you want updated.  Fields are:"
+                           "date of birth, name, address, or notes.")
             new_menu_state = 3
         elif req == 3:
             return_body = ("You can ask for information from your medical record"
@@ -222,11 +213,11 @@ def process_menu_2(message, patient):
     # body should contain name of the field they want
     return_body = "Error"
     new_menu_state = 0
-    return_body = select_column(message, patient)
+    (return_body, colname) = select_column(message, patient)
     if return_body is None:
         # error selecting that column
-        return_body = "Error fetching data for field {}".format(message)
-        new_menu_state = 0
+        return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
+        new_menu_state = 2
     else:
         new_menu_state = 0 # for now
     return (return_body, new_menu_state)
@@ -235,14 +226,15 @@ def process_menu_3(message, patient):
     # body should contain name of the field they want
     return_body = "Error"
     new_menu_state = 0
-    cur_data = select_column(message, patient)
+    (cur_data, colname) = select_column(message, patient)
     if cur_data is None:
-        return_body = "Error fetching data for field {} please try again".format(message)
+        return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
         new_menu_state = 3
     else:
-        return_body = "Current value for this field is \"{}\". Please reply with a new value.".format(cur_data)
+        extra = " in YYYY-MM-DD format" if colname == "dob" else ""
+        return_body = "Current value for this field is \"{}\". Please reply with a new value{}.".format(cur_data, extra)
         new_menu_state = 4
-        session['field'] = message
+        session['field'] = colname
     return (return_body, new_menu_state)
 
 def process_menu_4(message, patient):
@@ -251,14 +243,35 @@ def process_menu_4(message, patient):
     # body should contain new value, session['field'] should hold the field to update
     try:
         col = session['field']
-        print("Updating, setting {} to {} where name = {}".format(col,message,patient.name))
-        stmt = text("UPDATE patients SET {} = {} WHERE name = '{}'".format(col, message, patient.name))
-        db.engine.execute(stmt)
-        return_body = "Success, thank you for using RecordRight."
-        new_menu_state = 0
+        if col == "dob":
+            try:
+                dob = datetime.datetime.strptime(message, "%Y-%m-%d")
+            except:
+                return_body = ("Error parsing date: please try again with "
+                               "a correctly formatted date (ex: 1999-03-01)")
+                new_menu_state = 4
+            else:
+                patients = db.session.query(models_test.Patient).\
+                           filter(models_test.Patient.id == patient.id).\
+                           update({"birth_year":dob.year, "birth_month":dob.month, "birth_day":dob.day})
+
+                #patient.birth_year = dob.year
+                #patient.birth_month = dob.month
+                #patient.birth_day = dob.day
+                db.session.commit()
+                return_body = "Success, thank you for using RecordRight."
+                new_menu_state = 0
+        else:
+            # NB: all fields except dob are strings, so we automatically wrap the
+            # value in quotes, as dob is handled previously. 
+            print("Updating, setting {} to {} where name = {}".format(col,message,patient.name))
+            stmt = text("UPDATE patients SET {} = '{}' WHERE name = '{}'".format(col, message, patient.name))
+            db.engine.execute(stmt)
+            return_body = "Success, thank you for using RecordRight."
+            new_menu_state = 0
     except Exception as e:
         print("Error: {}".format(e))
-        return_body = "Error updating {} to {}"
+        return_body = "Error updating {} to {}".format(session.get('field', 'unkown field'), message)
         new_menu_state = 0
     return (return_body, new_menu_state)
 
@@ -325,10 +338,9 @@ def process_menu_11(message, number):
                 # I don't know why this isn't working, but it doesn't
                 #patient.phone_number = number
                 # This works instead, don't know why
-                patients = db.session.query(models_test.Patient).filter(models_test.Patient.name == name).\
-                           filter(models_test.Patient.birth_year == dob.year).\
-                           filter(models_test.Patient.birth_month == dob.month).\
-                           filter(models_test.Patient.birth_day == dob.day).update({"phone_number" : number})
+                patients = db.session.query(models_test.Patient).\
+                           filter(models_test.Patient.id == patient.id).\
+                           update({"phone_number" : number})
                 print("number is now {}".format(patient.phone_number))
                 db.session.commit()
                 db.session.flush()
