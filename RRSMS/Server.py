@@ -153,8 +153,9 @@ def process_message(message, from_number, menu_state):
 
 # for a message such as 'notes', 'Notes', 'my notes', 
 # attempts to return the correct column value
-def select_column(message, patient):
-    message = message.lower()
+def select_column(m, patient):
+    message = m.lower()
+    print("checking column of {}".format(message))
     # a bit hacky... but good enough
     if "name" in message:
         return (patient.name, "name")
@@ -168,7 +169,9 @@ def select_column(message, patient):
         # this is a bit of an odd one because we split
         # the dob accross 3 columns
         return ("{}-{}-{}".format(patient.birth_year, patient.birth_month, patient.birth_day), "dob")
-    return None
+    else:
+        print("address in message? {}".format("address" in message))
+        return (None, None)
 
 ## All process_menu_x functions should take in the message and the patient record
 ## as arguments, and return a tuple of (return_body, new_menu_state)
@@ -214,12 +217,15 @@ def process_menu_2(message, patient):
     return_body = "Error"
     new_menu_state = 0
     (return_body, colname) = select_column(message, patient)
-    if return_body is None:
+    if colname is None:
         # error selecting that column
         return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
         new_menu_state = 2
     else:
         new_menu_state = 0 # for now
+    if return_body is None:
+        # no value
+        return_body = "No value in this field"
     return (return_body, new_menu_state)
 
 def process_menu_3(message, patient):
@@ -227,7 +233,7 @@ def process_menu_3(message, patient):
     return_body = "Error"
     new_menu_state = 0
     (cur_data, colname) = select_column(message, patient)
-    if cur_data is None:
+    if colname is None:
         return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
         new_menu_state = 3
     else:
