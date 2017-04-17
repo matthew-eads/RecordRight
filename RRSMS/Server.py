@@ -82,7 +82,9 @@ def add_db():
                                 birth_year=int(request.values['birth_year']),
                                 birth_month=int(request.values['birth_month']),
                                 birth_day=int(request.values['birth_day']),
-                                phone_number=request.values['phone_number'])
+                                phone_number=request.values['phone_number'],
+                                address=request.values['address'],
+                                notes=request.values['notes'])
         # TODO: check not duplicate
         db.session.add(p)
         db.session.commit()
@@ -137,10 +139,20 @@ def process_message(message, from_number, menu_state):
         print("adding '1'")
         from_number = "1{}".format(from_number)
     print("from_number is now {}".format(from_number))
+
+    # They can send "HELP" at anytime for help
+    # or "QUIT" to return to the main menu
+    if message == "HELP":
+        (return_body, new_menu_state) = process_help(menu_state)
+        return (return_body, new_menu_state) 
+    elif message == "QUIT":
+        #(return_body, new_menu_state) = process_quit(menu_state)
+        return process_message("hello", from_number, 0)
+
     #TODO some sort of check for more than one patients with the same number
     patients = models_test.Patient.query.filter(models_test.Patient.phone_number == from_number).all()
     if len(patients) == 0:
-        # hmmm, maybe have feature to register phone number to a name
+        # register the phone number to an existing patient record
         if menu_state == 0:
             (return_body, new_menu_state) = process_menu_9(message, from_number)
         elif menu_state == 10:
@@ -151,14 +163,11 @@ def process_message(message, from_number, menu_state):
         return (return_body, new_menu_state)
     if len(patients) > 1:
         return ("Duplicate numbers...", 0)
+
     patient = patients[0]
     print("Processing message for {}, have menu_state {}".format(patient.name, menu_state))
-    if message is None or from_number is None:
-        # We received a badly formed message, be upset
-        return_body = ("We're sorry, but there has been an internal error. "
-                       "Please try sending your message again")
-        
-    elif menu_state == 0:
+
+    if menu_state == 0:
         (return_body, new_menu_state) = process_menu_0(message, patient)
     elif menu_state == 1:
         (return_body, new_menu_state) = process_menu_1(message, patient)
@@ -206,7 +215,7 @@ def process_menu_0(message, patient):
     # isn't at this time important, we just give them
     # the options
     return (("Welcome to RecordRight, text '1' to fetch information, "
-             "'2' to update information in your record, or '3' for more help."
+             "'2' to update information in your record, or '3' for more help. "
              "At any time, you can send 'HELP' to get more information.")
             , 1)
 
@@ -215,11 +224,11 @@ def process_menu_1(message, patient):
     try:
         req = int(message)
         if req == 1:
-            return_body = ("Please reply with the name of the field you want fetched. Fields are:"
+            return_body = ("Please reply with the name of the field you want fetched. Fields are: "
                            "date of birth, name, address, or notes.")
             new_menu_state = 2
         elif req == 2:
-            return_body = ("Please reply with the name of the field you want updated.  Fields are:"
+            return_body = ("Please reply with the name of the field you want updated.  Fields are: "
                            "date of birth, name, address, or notes.")
             new_menu_state = 3
         elif req == 3:
@@ -381,6 +390,13 @@ def process_menu_11(message, number):
                 new_menu_state = 1
     session['patient_name'] = name
     return (return_body, new_menu_state)
+
+def process_help(menu_state):
+    return_body = "No help for you sorry"
+    new_menu_state = menu_state
+
+    return (return_body, new_menu_state)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=port, host='0.0.0.0')
