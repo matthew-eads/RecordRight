@@ -102,17 +102,18 @@ def update_db():
         p_id = request.values['patient_id'] # if this isn't here, then we're out of luck
         
         # we can use first - really should be no way there are duplicate ids
-        patient = models_test.Patient.query.filter(models_test.Patient.id == p_id).first()
+        patient = db.session.query(models_test.Patient).filter(models_test.Patient.id == int(p_id)).first()
         
         # now update whatever values are given in request.values
 
         patient.name         = request.values.get('name',         patient.name) # not sure if this is the best way
-        patient.birth_day    = request.values.get('birth_day',    patient.birth_day)
-        patient.birth_month  = request.values.get('birth_month',  patient.birth_month)
-        patient.birth_year   = request.values.get('birth_year',   patient.birth_year)
+        patient.birth_day    = int(request.values.get('birth_day',    patient.birth_day))
+        patient.birth_month  = int(request.values.get('birth_month',  patient.birth_month))
+        patient.birth_year   = int(request.values.get('birth_year',   patient.birth_year))
         patient.phone_number = request.values.get('phone_number', patient.phone_number)
 
         db.session.commit()
+        db.session.flush()
         return Response("Successfully updated db", 200, {})
     except Exception as e:
         print("Error updating db: {}".format(e))

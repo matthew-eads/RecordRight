@@ -7,7 +7,9 @@ import os
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL", "postgresql://flaskapp:password@localhost:5432/rrsms_db"))
+#config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL", "postgresql://flaskapp:password@localhost:5432/rrsms_db"))
+config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL", "sqlite:////home/matt/compsci/RecordRight/RRSMS/test.db"))
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
