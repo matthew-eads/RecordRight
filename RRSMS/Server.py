@@ -73,10 +73,10 @@ def requires_auth(f):
     return decorated
 
 # Adds a patient to the db - see update_db.py
-@app.route('/update', methods=["GET", "POST"])
+@app.route('/add', methods=["GET", "POST"])
 @requires_auth
-def update_db():
-    print("Updating db")
+def add_db():
+    print("Adding db")
     try:
         p = models_test.Patient(name=request.values['name'],
                                 birth_year=int(request.values['birth_year']),
@@ -85,6 +85,31 @@ def update_db():
                                 phone_number=request.values['phone_number'])
         # TODO: check not duplicate
         db.session.add(p)
+        db.session.commit()
+        return Response("Successfully updated db", 200, {})
+    except Exception as e:
+        print("Error updating db: {}".format(e))
+        return Response("Error updating db", 200, {})
+
+# Updates an existing patient record in the db - see update_db.py
+@app.route('/update', methods=["GET", "POST"])
+@requires_auth
+def update_db():
+    print("Updating db")
+    try:
+        p_id = request.values['patient_id'] # if this isn't here, then we're out of luck
+        
+        # we can use first - really should be no way there are duplicate ids
+        patient = models_test.Patient.query.filter(models_test.Patient.id == p_id).first()
+        
+        # now update whatever values are given in request.values
+
+        patient.name         = request.values.get('name',         patient.name) # not sure if this is the best way
+        patient.birth_day    = request.values.get('birth_day',    patient.birth_day)
+        patient.birth_month  = request.values.get('birth_month',  patient.birth_month)
+        patient.birth_year   = request.values.get('birth_year',   patient.birth_year)
+        patient.phone_number = request.values.get('phone_number', patient.phone_number)
+
         db.session.commit()
         return Response("Successfully updated db", 200, {})
     except Exception as e:
