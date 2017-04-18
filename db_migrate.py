@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# run this from command line whenever you want to update the db
 import imp
 from migrate.versioning import api
 from app import database

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+#script to run from command line to create db
 from migrate.versioning import api
 from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO
