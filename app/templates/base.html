@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Welcome to RecordRight</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
+    </head>
+  
+    <body>
+    		<p> <div style = "float: right;"><img src = "{{url_for('static', filename = 'logo.png')}}"> </div> </p>
+		<div class = "Header">
+			<h1> RECORD RIGHT </h1> 
+		</div>
+
+		{% block content %}{% endblock %}
+
+    </body>
+  
+</html>

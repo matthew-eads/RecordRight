@@ -1,20 +1,9 @@
-<!doctype html>
-
-<html lang = "en">
-
-<head>
-	<title> Patient Data </title>
- 	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
-</head>
-
-<body>
+{% extends "base.html" %}
+{% block content %}
 	<div id = "Header">
 		<h1>{{user.name}}</h1>
 		<h2>{{user.DOB}}</h2>
 		<h3> Patient Information </h3>
 		<p> History: {{user.hx}}</p>
 	</div>
-
-</body>
-</html>
-
+{% endblock %}
