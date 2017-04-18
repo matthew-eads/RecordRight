@@ -3,7 +3,9 @@
 # a whole project)
 
 from flask import Flask
+from sqlalchemy import *
 
 app = Flask(__name__)
-from app import views
+app.config.from_object('config')
 
+from app import views

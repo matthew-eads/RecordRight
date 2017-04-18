@@ -29,7 +29,6 @@ def patient_data(user):
 def login():
 	form = LoginForm(request.form)
 	sys.stderr.write("FORM IS validated? %s \n" % form.validate())
-	# sys.stderr.write("\n")
 	if form.validate() and request.method == 'POST':
 		# flash('Login requested for User=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
 		return redirect('/index')
