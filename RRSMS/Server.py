@@ -259,8 +259,10 @@ def process_menu_2(message, patient):
         return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
         new_menu_state = 2
     else:
-        new_menu_state = 0 # for now
-    if return_body is None:
+        return_body = ("Value for {} is \"{}\". Text '1' to fetch information, "
+                       "'2' to update information in your record, or '3' for more help.").format(message, return_body)
+        new_menu_state = 1 # for now
+    if return_body is None: #TODO this is now obsolete
         # no value
         return_body = "No value in this field"
     return (return_body, new_menu_state)
@@ -302,16 +304,19 @@ def process_menu_4(message, patient):
                 #patient.birth_month = dob.month
                 #patient.birth_day = dob.day
                 db.session.commit()
-                return_body = "Success, thank you for using RecordRight."
-                new_menu_state = 0
+                return_body = ("Success, thank you for using RecordRight. Text '1' to fetch information, "
+                               "'2' to update information in your record, or '3' for more help.")
+
+                new_menu_state = 1
         else:
             # NB: all fields except dob are strings, so we automatically wrap the
             # value in quotes, as dob is handled previously. 
             print("Updating, setting {} to {} where name = {}".format(col,message,patient.name))
             stmt = text("UPDATE patients SET {} = '{}' WHERE name = '{}'".format(col, message, patient.name))
             db.engine.execute(stmt)
-            return_body = "Success, thank you for using RecordRight."
-            new_menu_state = 0
+            return_body = ("Success, thank you for using RecordRight. Text '1' to fetch information, "
+                               "'2' to update information in your record, or '3' for more help.")
+            new_menu_state = 1
     except Exception as e:
         print("Error: {}".format(e))
         return_body = "Error updating {} to {}".format(session.get('field', 'unkown field'), message)

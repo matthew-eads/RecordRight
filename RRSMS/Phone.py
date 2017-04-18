@@ -2,7 +2,7 @@ import requests
 import argparse, sys
 import random
 import xml.etree.ElementTree as ET
-
+from time import sleep 
 # Simulates a phone which texts our twilio flask app
 # pass in configuration details on command line  (url, port, phone #, etc)
 # and then interact on the command line; type in text to send an sms message,
@@ -48,6 +48,7 @@ def main():
         if response.status_code != 200:
             print("Got bad response: {0}".format(response.status_code))
         else:
+            sleep(0.5)
             response_message = response.text
             
             root = ET.fromstring(response_message)
