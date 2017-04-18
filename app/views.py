@@ -1,5 +1,6 @@
 from app import app
 from flask import render_template
+from .forms import LoginForm
 
 @app.route('/')
 @app.route('/index')
@@ -16,4 +17,9 @@ def patient_data(user):
 	# this converts the user variable, which is a string, into a dict
 	user = eval(user)
 	return render_template('patient_data.html', user=user)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	form = LoginForm()
+	return render_template('login.html', title='SignIn', form=form)
 
