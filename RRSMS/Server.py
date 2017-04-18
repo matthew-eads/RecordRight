@@ -72,7 +72,7 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-# Adds a patient to the db - see update_db.py
+# Adds a patient to the db - see add_db.py
 @app.route('/add', methods=["GET", "POST"])
 @requires_auth
 def add_db():
@@ -111,6 +111,8 @@ def update_db():
         patient.birth_month  = int(request.values.get('birth_month',  patient.birth_month))
         patient.birth_year   = int(request.values.get('birth_year',   patient.birth_year))
         patient.phone_number = request.values.get('phone_number', patient.phone_number)
+        patient.address      = request.values.get('address',      patient.address)
+        patient.notes        = request.values.get('notes',        patient.notes)
 
         db.session.commit()
         db.session.flush()
