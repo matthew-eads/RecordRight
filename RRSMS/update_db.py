@@ -9,8 +9,9 @@
 import requests, argparse, sys
 from requests.auth import HTTPBasicAuth
 
+
 parser = argparse.ArgumentParser()
-parser.add_argument("-u", "--url", default="http://localhost:5000")
+parser.add_argument("-u", "--url", default="http://localhost:5001")
 args = parser.parse_args(sys.argv[1:])
 
 url = args.url
@@ -18,16 +19,18 @@ url = args.url
 username = input("username: ")
 pwd = input("password: ")
 print("")
-name = input("full name: ")
-birth_year = input("birth_year: ")
-birth_month = input("birth_month: ")
-birth_day = input("birth_day: ")
-phone_number = input("phone_number: ")
-address = input("address: ")
-notes = input("notes: ")
+pid = input("patient id: ")
+data = {"patient_id":pid}
+print("enter the fields you want to update and their new values, ex: \"birth_year:1\"")
 
-data = {"name":name, "birth_year":birth_year, "birth_month":birth_month, 
-        "birth_day":birth_day, "phone_number":phone_number, "address":address, "notes":notes}
+for line in sys.stdin:
+    try:
+        split = line.split(':')
+        (key,value) = (split[0].strip(), split[1].strip())
+        data[key] = value
+    except Exception as e:
+        print("you fucked up, we weren't able to process this line")
+
 
 response = requests.post("{}/update".format(url), params=data, auth=HTTPBasicAuth(username, pwd))
 print(response.text) 
