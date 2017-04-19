@@ -36,18 +36,3 @@ config = {"WHOOSH_BASE": WHOOSH_BASE}
 
 index_service = IndexService(config=config, session = db)
 index_service.register_class(Patient)
-
-
-# class Post(db.Model):
-#     __searchable__ = ['body']
-
-#     id = Column(Integer, primary_key=True)
-#     body = Column(String(140))
-#     timestamp = Column(DateTime)
-#     user_id = Column(Integer, ForeignKey('user.id'))
-
-#     def __repr__(self):
-#         return '<Post %r>' % (self.body)
-
-# if enable_search:
-#     whooshalchemy.whoosh_index(app, Patient)
