@@ -7,13 +7,13 @@ import sys
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 # this is actually our session -- I need to rename this
-db = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 Base = declarative_base()
-Base.query = db.query_property()
+Base.query = session.query_property()
 
-def init_db():
+def init_session():
 	import app.models
-	sys.stderr.write('INTIALIZING DB \n \n \n')
-	# actually creates the db -- should only run this once
+	sys.stderr.write('INTIALIZING session \n \n \n')
+	# actually creates the session -- should only run this once
 	Base.metadata.create_all(bind=engine)

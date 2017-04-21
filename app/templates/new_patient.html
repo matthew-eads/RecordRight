@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+	<h1> New Patient </h1>	
+
+	<form action="" method="post" name="login">
+		<p> Name: {{form.name}} </p>
+		<p> DOB: {{form.DOB}} </p>
+		<p> History: {{form.hx}} </p>
+		<p><input type="submit" value="Submit"></p>
+	</form>
+
+	<form action = "{{ url_for('index') }}"><input type="submit" value="Cancel"/></form>
+
+{% endblock %}

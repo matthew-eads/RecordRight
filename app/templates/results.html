@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+	<table>
+		<tr> 
+			<th>Patient</th>
+			<th>DOB</th>
+		</tr>
+		{% for patient in results %}
+		<tr>
+			<th><p><a href= "{{ url_for('patient_data', id=patient.id)}}"> {{patient.name}}</a></p></th>
+			<th>{{patient.DOB}}</th>
+		</tr>
+		{% endfor %}
+	</table>
+ {% endblock %}

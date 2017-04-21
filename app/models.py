@@ -2,7 +2,7 @@ from sqlalchemy import *
 from app.database import Base
 from config import WHOOSH_BASE
 from whooshalchemy import IndexService
-from database import db
+from database import session
 
 class User(Base):
 	__tablename__ = 'users'
@@ -34,5 +34,5 @@ else:
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}
 
-index_service = IndexService(config=config, session = db)
+index_service = IndexService(config=config, session = session)
 index_service.register_class(Patient)
