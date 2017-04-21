@@ -17,7 +17,7 @@ AUTH_TOKEN = "8b1c193701c6f7332f669d1448ddbc68"
 
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
-if not args.dry_run:
+if not args.dry_run:x
     client.messages.create(to=to_number, from_="+19182387039", body=body)
 else:
     print("not sending message {} to {}".format(body, to_number))

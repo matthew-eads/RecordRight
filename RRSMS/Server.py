@@ -1,3 +1,4 @@
+
 import twilio.twiml
 import sys,os 
 import argparse
@@ -82,7 +83,7 @@ def add_db():
                                 birth_year=int(request.values['birth_year']),
                                 birth_month=int(request.values['birth_month']),
                                 birth_day=int(request.values['birth_day']),
-                                phone_number=request.values['phone_number'],
+                                phone_number=clean_number(request.values['phone_number']),
                                 address=request.values['address'],
                                 notes=request.values['notes'])
         # TODO: check not duplicate
@@ -121,6 +122,16 @@ def update_db():
         print("Error updating db: {}".format(e))
         return Response("Error updating db", 200, {})
         
+# strip '+' from number if there, and add '1' for US code if needed
+def clean_number(from_number):
+    if from_number[0] == '+':
+        print("stripping '+'")
+        from_number = from_number[1:]
+    if len(from_number) == 10:
+        print("adding '1'")
+        from_number = "1{}".format(from_number)
+    print("from_number is now {}".format(from_number))
+    return from_number
 
 # Bit of a gnarly function, but its goal is pretty simple
 # We take in the body of the SMS, which in general should just be
@@ -134,14 +145,8 @@ def process_message(message, from_number, menu_state):
     return_body = ""
     new_menu_state = 0
     print("from_number is {}".format(from_number))
-    # strip '+' from number if there, and add '1' for US code if needed
-    if from_number[0] == '+':
-        print("stripping '+'")
-        from_number = from_number[1:]
-    if len(from_number) == 10:
-        print("adding '1'")
-        from_number = "1{}".format(from_number)
-    print("from_number is now {}".format(from_number))
+    
+    from_number = clean_number(from_number)
 
     # They can send "HELP" at anytime for help
     # or "QUIT" to return to the main menu
@@ -350,7 +355,7 @@ def process_menu_10(message, number):
 
 # message should contain DOB YYYY-MM-DD
 def process_menu_11(message, number):
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     name = ""
     try:
         name = session['patient_name']

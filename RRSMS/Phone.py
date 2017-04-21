@@ -18,12 +18,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--url", default="http://localhost")
     parser.add_argument("-p", "--port", default="5001") 
-    parser.add_argument("-n", "--number", help="This is the pretend phone number to use",
-                        default=random_phone_number())
+    parser.add_argument("-n", "--number", help="This is the pretend phone number to use")
     args = parser.parse_args(sys.argv[1:])
     url = args.url
     port = args.port
     number = args.number
+    if number is None:
+        number = input("please enter your phone number: ")
     print("u: {0}, p: {1}, n: {2}".format(url,port,number))
     
     header = {"Content-type" : "application/x-www-form-urlencoded", "Accept":"text/plain"}

@@ -25,11 +25,10 @@ else:
     username = f.readline()[:-1]
     pwd = f.readline()[:-1]
     f.close()
-    print("read username: {} and pwd: {}.".format(username, pwd))
 
 name = input("full name: ")
 birth_year = input("birth_year: ")
-birth_month = input("birth_month: ")
+birth_month = input("birth_month ('1' not 'Jan'): ")
 birth_day = input("birth_day: ")
 phone_number = input("phone_number: ")
 address = input("address: ")
