@@ -57,7 +57,7 @@ def update_patient_data(id):
                         "birth_day":"01", "phone_number":patient.phone_number,
                         "address":"None", "notes":patient.hx}
 
-                #request_session.post("http://localhost:5001/update", params=data, 
+                #request_session.post("http://record-right.herokuapp.com/update", params=data, 
                 #                     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
                 
                 return redirect(url_for('patient_data', id=id))
@@ -87,7 +87,7 @@ def create_patient():
                                 "birth_day":"01", "phone_number":form.phone_number.data,
                                 "address":"None", "notes":form.hx.data}
 
-                        request_session.post("http://localhost:5001/add", params=data, 
+                        request_session.post("http://record-right.herokuapp.com/add", params=data, 
                                              auth=HTTPBasicAuth("admin", "pickabetterpassword"))
 
 		return redirect('/index')
