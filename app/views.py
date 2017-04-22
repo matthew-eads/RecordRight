@@ -17,9 +17,9 @@ import sys
 def index():
 	patients = Patient.query.all()
 	form = SearchForm(request.form)
-	if form.validate() and request.method == 'POST':
-		results = Patient.search_query(form.keyword.data).
-		return redirect(url_for('results', results=))
+	#if form.validate() and request.method == 'POST':
+		#results = Patient.search_query(form.keyword.data).
+		#return redirect(url_for('results', results=))
 	return render_template('index.html', patients=patients, form = form)
 
 @app.route('/patient_data/<path:id>')
