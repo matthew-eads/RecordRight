@@ -5,5 +5,9 @@
 		<h2>{{patient[0].DOB}}</h2>
 		<h3> Patient Information </h3>
 		<p> History: {{patient[0].hx}}</p>
+		<p> Phone Number: {{patient[0].phone_number}}</p>
+        <a href= "{{ url_for('update_patient_data', id=patient[0].id)}}">Edit</a>
 	</div>
+
+
 {% endblock %}

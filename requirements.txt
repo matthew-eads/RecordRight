@@ -1,0 +1,7 @@
+Flask==0.12.1
+SQLAlchemy==1.1.9
+sqlalchemy-migrate==0.11.0
+sqlparse==0.2.3
+Whoosh==2.7.4
+WhooshAlchemy==0.3.1
+WTForms==2.1
