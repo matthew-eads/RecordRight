@@ -1,5 +1,5 @@
-
 import twilio.twiml
+from twilio.rest import TwilioRestClient
 import sys,os 
 import argparse
 import datetime
@@ -15,6 +15,10 @@ args = parser.parse_args(sys.argv[1:])
 production = args.production
 
 port = int(os.getenv('PORT', '5001'))
+
+ACCOUNT_SID = "ACbaca90abfe93b3a0c75a44d71ed1e0c2"
+AUTH_TOKEN = "8b1c193701c6f7332f669d1448ddbc68"
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
 SQLALCHEMY_ECHO = False if production else True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -89,6 +93,12 @@ def add_db():
         # TODO: check not duplicate
         db.session.add(p)
         db.session.commit()
+        # Send a nice welcome message to the patient
+        to_number = clean_number(request.values['phone_number'])
+        body = ("Welcome to RecordRight! You can text this number to check "
+                "information in your record (such as notes from recent visits) "
+                "or update personal information. Send any message to begin.")
+        client.messages.create(to=to_number, from_="+19182387039", body=body)
         return Response("Successfully updated db", 200, {})
     except Exception as e:
         print("Error updating db: {}".format(e))
