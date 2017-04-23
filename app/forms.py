@@ -10,6 +10,8 @@ class NewPatientForm(Form):
 	DOB = StringField('DOB', [validators.DataRequired()])
 	hx = StringField('hx', [validators.DataRequired()])
 	phone_number = StringField('phone_number', [])
+        visit_date = StringField("visit_date", [])
+        visit_notes = StringField("visit_notes", [])
 
 class SearchForm(Form):
 	#name = StringField('name')

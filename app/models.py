@@ -3,6 +3,7 @@ from app.database import Base
 from config import WHOOSH_BASE
 from whooshalchemy import IndexService
 from database import session
+from sqlalchemy.ext.mutable import MutableDict
 
 class User(Base):
 	__tablename__ = 'users'
@@ -20,6 +21,7 @@ class Patient(Base):
 	DOB = Column(String, index=True)
 	hx = Column(String, index=True)
 	phone_number = Column(String, index=True)
+        past_visit_notes = Column(MutableDict.as_mutable(PickleType))
 	def __repr__(self):
 		return '<Patient %r %r %r>'%(self.name, self.DOB, self.hx)
 
