@@ -8,6 +8,8 @@ from database import session
 import database
 import logging
 import datetime
+from config import basedir 
+import subprocess 
 
 from requests_futures.sessions import FuturesSession
 from requests.auth import HTTPBasicAuth
@@ -104,13 +106,50 @@ def create_patient():
 			request_session = FuturesSession()
 			data = {"name":form.name.data, "birth_year":"1970", "birth_month":"01",
 				"birth_day":"01", "phone_number":form.phone_number.data,
-				"address":"None", "notes":form.vist_notes.data, "rr_id":str(new_patient.id)}
+				"address":"None", "notes":form.visit_notes.data, "rr_id":str(new_patient.id)}
 
 			request_session.post("{}/add".format(RRSMS_URL), params=data, 
 					     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
 
 		return redirect('/index')
 	return render_template('new_patient.html', title="CreatePatient", form=form)
+
+@app.route('/create_reminder/<path:id>', methods=['GET', 'POST'])
+def create_reminder(id):
+        patient = session.query(Patient).filter(Patient.id == id).first()
+        single_form = ReminderForm(request.form)
+        recurrent_form = RecurrentReminderForm(request.form)
+        #import pdb; pdb.set_trace()
+        if single_form.validate() and request.method == 'POST':
+                # schedule reminder
+                body = single_form.what.data
+                to_number = patient.phone_number
+                date = single_form.when.data
+                command = "{}/RRSMS/send_reminder.bash -n {} -m \"{}\"".format(basedir, to_number, body)
+                proc = subprocess.Popen(['at', date], stdin=subprocess.PIPE)
+                proc.stdin.write(command)
+                proc.stdin.close()
+                return redirect(url_for('patient_data', id=id))
+        
+        if recurrent_form.validate() and request.method == 'POST':
+                print("Creating recurrent reminder")
+                f = recurrent_form
+                body = f.what.data
+                to_number = patient.phone_number
+
+                command = "(crontab -l; echo \"0 {}-{}/{} */{} * * {}/RRSMS/send_reminder.bash -n {} -m \"{}\"\") | crontab -".format(
+                        f.start_hour.data, f.end_hour.data, f.hours.data, f.days.data, basedir, to_number, body)
+                proc = subprocess.Popen(["bash"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                proc.stdin.write(command)
+                proc.stdin.close()
+                print(proc.stdout.read())
+
+                #TODO: make sure we actually ~~STOP~~ sending messages based on either end_after or end_on
+
+                return redirect(url_for('patient_data', id=id))
+
+        return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form)
+        
 
 @app.route('/results', methods =['GET', 'POST'])
 def show_results():

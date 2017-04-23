@@ -15,9 +15,8 @@ args = parser.parse_args(sys.argv[1:])
 production = args.production
 
 port = int(os.getenv('PORT', '5001'))
-
 ACCOUNT_SID = "ACbaca90abfe93b3a0c75a44d71ed1e0c2"
-AUTH_TOKEN = "8b1c13701c6f7332f669d1448ddbc68"
+AUTH_TOKEN = "8b1c193701c6f7332f669d1448ddbc68"
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
 SQLALCHEMY_ECHO = False if production else True
@@ -131,7 +130,8 @@ def update_db():
             patient.rr_id = p_id
 
         # now update whatever values are given in request.values
-        if patient.phone_number is None and "phone_number" in request.values:
+        if (patient.phone_number is None and "phone_number" in request.values) or (
+           patient.phone_number != request.values.get("phone_number", patient.phone_number)):
             # send a welcome message
             body = ("Welcome to RecordRight! You can text this number to check "
                 "information in your record (such as notes from recent visits) "
