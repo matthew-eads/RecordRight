@@ -17,7 +17,7 @@ production = args.production
 port = int(os.getenv('PORT', '5001'))
 
 ACCOUNT_SID = "ACbaca90abfe93b3a0c75a44d71ed1e0c2"
-AUTH_TOKEN = "8b1c193701c6f7332f669d1448ddbc68"
+AUTH_TOKEN = "8b1c13701c6f7332f669d1448ddbc68"
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
 SQLALCHEMY_ECHO = False if production else True
@@ -83,23 +83,28 @@ def requires_auth(f):
 def add_db():
     print("Adding db")
     try:
-        p = models_test.Patient(name=request.values['name'],
-                                birth_year=int(request.values['birth_year']),
-                                birth_month=int(request.values['birth_month']),
-                                birth_day=int(request.values['birth_day']),
-                                phone_number=clean_number(request.values['phone_number']),
-                                address=request.values['address'],
-                                notes=request.values['notes'])
+        p = models_test.Patient(name=request.values.get('name', None),
+                                birth_year=int(request.values.get('birth_year', None)),
+                                birth_month=int(request.values.get('birth_month', None)),
+                                birth_day=int(request.values.get('birth_day', None)),
+                                phone_number=clean_number(request.values.get('phone_number', None)),
+                                address=request.values.get('address', None),
+                                notes=request.values.get('notes', None),
+                                rr_id=int(request.values.get('rr_id', None)))
         # TODO: check not duplicate
         db.session.add(p)
         db.session.commit()
         # Send a nice welcome message to the patient
-        to_number = clean_number(request.values['phone_number'])
-        body = ("Welcome to RecordRight! You can text this number to check "
+        to_number = clean_number(request.values.get('phone_number', None))
+        if to_number is None:
+            print("Can't send welcome message; phone_number not given")
+            return Response("Updated db, no welcome sendt", 200, {})
+        else:
+            body = ("Welcome to RecordRight! You can text this number to check "
                 "information in your record (such as notes from recent visits) "
                 "or update personal information. Send any message to begin.")
-        client.messages.create(to=to_number, from_="+19182387039", body=body)
-        return Response("Successfully updated db", 200, {})
+            client.messages.create(to=to_number, from_="+19182387039", body=body)
+            return Response("Successfully updated db", 200, {})
     except Exception as e:
         print("Error updating db: {}".format(e))
         return Response("Error updating db", 200, {})
@@ -110,12 +115,29 @@ def add_db():
 def update_db():
     print("Updating db")
     try:
-        p_id = request.values['patient_id'] # if this isn't here, then we're out of luck
+        p_id = request.values['rr_id'] # if this isn't here, then we're out of luck
         
         # we can use first - really should be no way there are duplicate ids
-        patient = db.session.query(models_test.Patient).filter(models_test.Patient.id == int(p_id)).first()
-        
+        patient = db.session.query(models_test.Patient).filter(models_test.Patient.rr_id == int(p_id)).first()
+        if patient is None:
+            print("Couldn't find based on rr_id")
+            # generally this shouldn't happen, but life isn't perfect ya know
+            # so lets just assume we have a name and no dups
+            name = request.values['name']
+            patient = db.session.query(models_test.Patient).filter(models_test.Patient.name == name).first()
+            if patient is None:
+                # fuck we'll just add it i guess
+                return add_db() #will this work?
+            patient.rr_id = p_id
+
         # now update whatever values are given in request.values
+        if patient.phone_number is None and "phone_number" in request.values:
+            # send a welcome message
+            body = ("Welcome to RecordRight! You can text this number to check "
+                "information in your record (such as notes from recent visits) "
+                "or update personal information. Send any message to begin.")
+            client.messages.create(to=to_number, from_="+19182387039", body=body)
+
 
         patient.name         = request.values.get('name',         patient.name) # not sure if this is the best way
         patient.birth_day    = int(request.values.get('birth_day',    patient.birth_day))

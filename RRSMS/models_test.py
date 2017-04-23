@@ -11,8 +11,9 @@ class Patient(db.Model):
     phone_number = db.Column(db.String)
     address = db.Column(db.String)
     notes = db.Column(db.String)
+    rr_id = db.Column(db.Integer, unique=True)
     def __init__(self, name=None, birth_year=None, birth_month=None, 
-                 birth_day=None, phone_number=None, address=None, notes=None):
+                 birth_day=None, phone_number=None, address=None, notes=None, rr_id=None):
         self.name = name
         self.birth_year = birth_year
         self.birth_month = birth_month
@@ -20,6 +21,7 @@ class Patient(db.Model):
         self.phone_number = phone_number
         self.address = address
         self.notes = notes
+        self.rr_id = rr_id
     
     def __repr__(self):
         return "{}, {}/{}/{}, #: {}".format(self.name, self.birth_month, self.birth_day, self.birth_year, self.phone_number)

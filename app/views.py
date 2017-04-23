@@ -14,15 +14,17 @@ from requests.auth import HTTPBasicAuth
 
 import sys
 
+#RRSMS_URL = "http://record-right.herokuapp.com"
+RRSMS_URL = "http://localhost:5001"
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
 	patients = Patient.query.all()
 	form = SearchForm(request.form)
-	#if form.validate() and request.method == 'POST':
-		#results = Patient.search_query(form.keyword.data).
-		#return redirect(url_for('results', results=))
+	if form.validate() and request.method == 'POST':
+		patients = Patient.search_query(form.keyword.data)
+		
 	return render_template('index.html', patients=patients, form = form)
 
 @app.route('/patient_data/<path:id>', methods=['GET', 'POST'])
@@ -35,32 +37,32 @@ def patient_data(id):
 @app.route('/update_patient_data/<path:id>', methods=['GET', 'POST'])
 def update_patient_data(id):
 	# this converts the patient variable, which is a string, into a dict
-        #import pdb; pdb.set_trace()
+	#import pdb; pdb.set_trace()
 	patients = session.query(Patient).filter(Patient.id == id).all()
-        patient = patients[0]
-        form = NewPatientForm(request.form)
-        if request.method == "GET":
-                form.name.data = patient.name
-                form.DOB.data = patient.DOB
-                form.hx.data = patient.hx
-        if form.validate() and request.method == 'POST':
-                patient.name = form.name.data
-                patient.DOB = form.DOB.data
-                patient.hx = form.hx.data
-                patient.phone_number = form.phone_number.data
-                database.session.commit()
+	patient = patients[0]
+	form = NewPatientForm(request.form)
+	if request.method == "GET":
+		form.name.data = patient.name
+		form.DOB.data = patient.DOB
+		form.hx.data = patient.hx
+                form.phone_number.data = patient.phone_number
+	if form.validate() and request.method == 'POST':
+		patient.name = form.name.data
+		patient.DOB = form.DOB.data
+		patient.hx = form.hx.data
+		patient.phone_number = form.phone_number.data
+		database.session.commit()
 
-                request_session = FuturesSession()
+		request_session = FuturesSession()
 
-                # this won't work - we need to do something different (TODO)
-                data = {"patient_id":str(id), "name":patient.name, "birth_year":"1970", "birth_month":"01",
-                        "birth_day":"01", "phone_number":patient.phone_number,
-                        "address":"None", "notes":patient.hx}
+		data = {"rr_id":str(id), "name":patient.name, "birth_year":"1970", "birth_month":"01",
+			"birth_day":"01", "phone_number":patient.phone_number,
+			"address":"None", "notes":patient.hx}
 
-                #request_session.post("http://record-right.herokuapp.com/update", params=data, 
-                #                     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
-                
-                return redirect(url_for('patient_data', id=id))
+		request_session.post("{}/update".format(RRSMS_URL), params=data, 
+				     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
+		
+		return redirect(url_for('patient_data', id=id))
 	return render_template('update_patient_data.html', patient=patient, form=form)
 
 
@@ -81,14 +83,14 @@ def create_patient():
                                       hx = form.hx.data, phone_number=form.phone_number.data)
 		database.session.add(new_patient)
 		database.session.commit()
-                if form.phone_number.data is not None:
-                        request_session = FuturesSession()
-                        data = {"name":form.name.data, "birth_year":"1970", "birth_month":"01",
-                                "birth_day":"01", "phone_number":form.phone_number.data,
-                                "address":"None", "notes":form.hx.data}
+		if form.phone_number.data is not None:
+			request_session = FuturesSession()
+			data = {"name":form.name.data, "birth_year":"1970", "birth_month":"01",
+				"birth_day":"01", "phone_number":form.phone_number.data,
+				"address":"None", "notes":form.hx.data, "rr_id":str(new_patient.id)}
 
-                        request_session.post("http://record-right.herokuapp.com/add", params=data, 
-                                             auth=HTTPBasicAuth("admin", "pickabetterpassword"))
+			request_session.post("{}/add".format(RRSMS_URL), params=data, 
+					     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
 
 		return redirect('/index')
 	return render_template('new_patient.html', title="CreatePatient", form=form)
