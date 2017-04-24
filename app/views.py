@@ -7,7 +7,7 @@ from app.models import Patient
 from database import session
 import database
 import logging
-import datetime
+import datetime, time
 from config import basedir 
 import subprocess 
 
@@ -136,16 +136,53 @@ def create_reminder(id):
                 f = recurrent_form
                 body = f.what.data
                 to_number = patient.phone_number
-
-                command = "(crontab -l; echo \"0 {}-{}/{} */{} * * {}/RRSMS/send_reminder.bash -n {} -m \"{}\"\") | crontab -".format(
-                        f.start_hour.data, f.end_hour.data, f.hours.data, f.days.data, basedir, to_number, body)
+                
+                # ok so for the end_after x occurrences, not quite sure what the best way is
+                # best i got right now is just shove a counter in the file
+                run_script = ""
+                if f.end_after.data is not None:
+                        counter_name = "{}/.scheduling/{}-{}.count".format(basedir, to_number, str(time.time()))
+                        script_name = "{}/.scheduling/{}-{}.bash".format(basedir, to_number, str(time.time()))
+                        script = """
+                        #!/bin/bash
+                        fname="{}"
+                        count=`cat $fname`
+                        count=$((count-1))
+                        if [ $count -lt 1 ]; then
+                          # time to die
+                          echo "killing self"
+                          crontab -l | grep -Fv \"{}\" | crontab -
+                          rm $fname
+                          rm {}
+                          exit 0
+                        fi
+                        echo "not dead yet... decrementing counter"
+                        echo $count > $fname\n""".format(counter_name, script_name, script_name)
+                        run_script = "; bash {}".format(script_name)
+                        script_f = open(script_name, "w+")
+                        script_f.write(script)
+                        script_f.close()
+                        counter_f = open(counter_name, "w+")
+                        counter_f.write("{}\n".format(f.end_after.data))
+                        counter_f.close()
+                subcommand = "0 {}-{}/{} */{} * * {}/RRSMS/send_reminder.bash -n {} -m \\\"{}\\\"{}".format(
+                        f.start_hour.data, f.end_hour.data, f.hours.data, 
+                        f.days.data, basedir, to_number, body, run_script)
+                command = "(crontab -l; echo \"{}\") | crontab - ".format(subcommand)
+                print("command is: {}".format(command))
                 proc = subprocess.Popen(["bash"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                 proc.stdin.write(command)
                 proc.stdin.close()
                 print(proc.stdout.read())
-
                 #TODO: make sure we actually ~~STOP~~ sending messages based on either end_after or end_on
-
+                if f.end_on.data is not None:
+                        proc = subprocess.Popen(["at", f.end_on.data], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                        proc.stdin.write("crontab -l\n")
+                        print("grepping for \"{}\"".format(subcommand))
+                        proc.stdin.write("crontab -l | grep -Fv \"{}\" | crontab - ".format(subcommand))
+                        proc.stdin.close()
+                        print("Output: {}".format(proc.stdout.read()))
+                        
                 return redirect(url_for('patient_data', id=id))
 
         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form)
