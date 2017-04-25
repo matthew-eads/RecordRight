@@ -19,7 +19,7 @@ class SearchForm(Form):
 	keyword = StringField('keyword')
 
 class ReminderForm(Form):
-        when = StringField('when', [validators.DataRequired()])
+        when = StringField('when', [validators.DataRequired()], default=u'NOW')
         what = StringField('what', [validators.DataRequired()])
 
 class RecurrentReminderForm(Form):
