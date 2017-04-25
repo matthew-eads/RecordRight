@@ -5,3 +5,4 @@ sqlparse==0.2.3
 Whoosh==2.7.4
 WhooshAlchemy==0.3.1
 WTForms==2.1
+request_futures==0.9.7

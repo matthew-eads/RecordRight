@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('patients', sa.Column('rr_id', sa.Integer, primary_key=True)) 
+    op.add_column('patients', sa.Column('rr_id', sa.Integer)) 
 
 
 def downgrade():

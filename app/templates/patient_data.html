@@ -10,12 +10,13 @@
           {% if patient[0].past_visit_notes is none or patient[0].past_visit_notes|length == 0 %}
             <p>No past visits</p>
           {% else %}
-            {% for date, visit in patient[0].past_visit_notes.iteritems() %}
+            {% for date, visit in visit_notes %}
             <p>{{date}} : {{visit}}</p>
             {% endfor %}
           {% endif %}
         </p>
-        <a href= "{{ url_for('update_patient_data', id=patient[0].id)}}">Edit</a>
+        <p><a href= "{{ url_for('update_patient_data', id=patient[0].id)}}">Edit</a></p>
+        <p><a href= "{{ url_for('create_reminder', id=patient[0].id)}}">Create Reminder</a></p>
 	</div>
     {# fix this maybe <a href="{{ url_for('show_results')}}">Back</a> #}
 

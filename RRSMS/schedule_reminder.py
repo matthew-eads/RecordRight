@@ -14,6 +14,8 @@ args = parser.parse_args(sys.argv[1:])
 body = args.message if args.message is not None else input("Enter message to send: ")
 to_number = args.number if args.number is not None else input("Enter number to send to: ")
 date = args.time if args.time is not None else input("Enter date to send reminder: ")
+
+
 command = "./send_reminder.bash -n {} -m \"{}\"".format(to_number, body)
 print("command is {}".format(bytes(command, "ascii")))
 proc = subprocess.Popen(['at', date], stdin=subprocess.PIPE)
