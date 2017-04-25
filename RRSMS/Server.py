@@ -201,8 +201,8 @@ def process_message(message, from_number, menu_state):
             (return_body, new_menu_state) = process_menu_11(message, from_number)
 
         return (return_body, new_menu_state)
-    if len(patients) > 1:
-        return ("Duplicate numbers...", 0)
+    #if len(patients) > 1:
+        #return ("Duplicate numbers...", 0)
 
     patient = patients[0]
     print("Processing message for {}, have menu_state {}".format(patient.name, menu_state))
