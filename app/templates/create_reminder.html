@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block content %}
+{% block app_content %}
 
         
 
@@ -37,11 +37,15 @@
 	<form action="" method="post" name="reminder">
 
 		<p> Message to send: {{single_form.what}} </p>
-		<p> Date to send (MM/DD/YY): {{single_form.when}} </p>
+    <!-- <div class="row"> -->
+
+  		<p> Date to send (MM/DD/YY): {{single_form.when}} </p>
+    <!-- </div> -->
 		<p><input type="submit" value="Submit"></p>
 	</form>
+
         </div>
-          
+          <!-- <i class="glyphicon glyphicon-info-sign" rel="tooltip" title="Key active" id="blah"></i> -->
         <div id="recurrentform" style="display:none">
 	<form action="" method="post" name="recurrentreminder">
 

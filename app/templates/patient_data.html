@@ -1,8 +1,20 @@
 {% extends "base.html" %}
-{% block content %}
-	<div id = "Header">
+{% block app_content %}
+<!-- 	<div id = "Header"> -->
+<div class="container">
+  <div class="row">
 		<h1>{{patient[0].name}}</h1>
+  
 		<h2>{{patient[0].DOB}}</h2>
+  </div>
+  <div class="row">
+      <div class="col-md-1">
+        <p><a class="btn btn-default" href= "{{ url_for('update_patient_data', id=patient[0].id)}}">Edit</a></p>
+      </div>
+      <div class="col-md-1">
+        <p><a class="btn btn-default" href= "{{ url_for('create_reminder', id=patient[0].id)}}">Create Reminder</a></p>
+      </div>
+  </div>
 		<h3> Patient Information </h3>
 		<p> History: {{patient[0].hx}}</p>
 		<p> Phone Number: {{patient[0].phone_number}}</p>
@@ -15,9 +27,10 @@
             {% endfor %}
           {% endif %}
         </p>
-        <p><a href= "{{ url_for('update_patient_data', id=patient[0].id)}}">Edit</a></p>
-        <p><a href= "{{ url_for('create_reminder', id=patient[0].id)}}">Create Reminder</a></p>
-	</div>
+<!-- 	</div> -->
+
+<br><br><br>
+</div>
     {# fix this maybe <a href="{{ url_for('show_results')}}">Back</a> #}
 
 {% endblock %}

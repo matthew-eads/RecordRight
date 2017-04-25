@@ -17,8 +17,8 @@ from requests.auth import HTTPBasicAuth
 
 import sys
 
-#RRSMS_URL = "http://record-right.herokuapp.com"
-RRSMS_URL = "http://localhost:5001"
+RRSMS_URL = "http://record-right.herokuapp.com"
+# RRSMS_URL = "http://localhost:5001"
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])

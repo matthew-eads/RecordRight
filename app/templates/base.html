@@ -14,13 +14,24 @@
         <div class="jumbotron">
     		<p> 
                 <div style = "float: right;">
-                    <img src = "{{url_for('static', filename = 'logo.png')}}"> 
+                    <img id="logo" src = "{{url_for('static', filename = 'logo.png')}}"> 
                 </div>
             </p>
     		<div class = "Header">
     			<h1> RECORD RIGHT </h1> 
     		</div>
         </div>
+        <nav class="navbar navbar-default">
+          <div class="container-fluid">
+            <!-- <div class="navbar-header"> -->
+            <!--   <a class="navbar-brand" href="#">WebSiteName</a>
+            </div> -->
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="{{url_for('index')}}">Home</a></li>
+              <li><a href="{{url_for('create_patient')}}">Create Patient</a></li>
+            </ul>
+          </div>
+        </nav>
 
 		{% block app_content %}{% endblock %}
 
