@@ -136,7 +136,7 @@ def update_db():
             body = ("Welcome to RecordRight! You can text this number to check "
                 "information in your record (such as notes from recent visits) "
                 "or update personal information. Send any message to begin.")
-            client.messages.create(to=to_number, from_="+19182387039", body=body)
+            client.messages.create(to=request["phone_number"], from_="+19182387039", body=body)
 
 
         patient.name         = request.values.get('name',         patient.name) # not sure if this is the best way
