@@ -97,7 +97,7 @@ def add_db():
         to_number = clean_number(request.values.get('phone_number', None))
         if to_number is None:
             print("Can't send welcome message; phone_number not given")
-            return Response("Updated db, no welcome sendt", 200, {})
+            return Response("Updated db, no welcome sent", 200, {})
         else:
             body = ("Welcome to RecordRight! You can text this number to check "
                 "information in your record (such as notes from recent visits) "

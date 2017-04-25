@@ -17,8 +17,8 @@ from requests.auth import HTTPBasicAuth
 
 import sys
 
-#RRSMS_URL = "http://record-right.herokuapp.com"
-RRSMS_URL = "http://localhost:5001"
+RRSMS_URL = "http://record-right.herokuapp.com"
+#RRSMS_URL = "http://localhost:5001"
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
@@ -90,9 +90,9 @@ def update_patient_data(id):
 		database.session.commit()
 
 		request_session = FuturesSession()
-
-		data = {"rr_id":str(id), "name":patient.name, "birth_year":"1970", "birth_month":"01",
-			"birth_day":"01", "phone_number":patient.phone_number,
+                date = datetime.datetime.strptime(datestr, "%m/%d/%Y")
+		data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), "birth_month":str(date.month),
+			"birth_day":str(date.day), "phone_number":patient.phone_number,
 			"address":"None"}
                 if form.visit_notes.data is not None:
                         data["notes"] = form.visit_notes.data
@@ -131,8 +131,8 @@ def create_patient():
 		if form.phone_number.data is not None:
 			request_session = FuturesSession()
                         date = datetime.datetime.strptime(form.DOB.data, "%m/%d/%Y")
-			data = {"name":form.name.data, "birth_year":"1970", "birth_month":"01",
-				"birth_day":"01", "phone_number":form.phone_number.data,
+			data = {"name":form.name.data, "birth_year":str(date.year), "birth_month":str(date.month),
+				"birth_day":str(date.day), "phone_number":form.phone_number.data,
 				"address":"None", "notes":form.visit_notes.data, "rr_id":str(new_patient.id)}
 
 			request_session.post("{}/add".format(RRSMS_URL), params=data, 
