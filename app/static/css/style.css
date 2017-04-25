@@ -25,3 +25,16 @@ body {
 	text-decoration: none;
 	color: initial;
 }
+
+.jumbotron {
+	background-color: #fff;
+}
+
+.vertical-buffers {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.bottom-buffer {
+	margin-bottom: 20px;
+}

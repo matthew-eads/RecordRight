@@ -1,7 +1,9 @@
 {% extends "bootstrap/base.html" %}
+
+{% block title %} Welcome to RecordRight {% endblock %}
 {% block content %}
 
-        {% block title %}Welcome to RecordRight{% endblock %}
+        
         {% block styles %}
         	{{super()}}
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
@@ -9,10 +11,16 @@
  
   
     <body>
-    		<p> <div style = "float: right;"><img src = "{{url_for('static', filename = 'logo.png')}}"> </div> </p>
-		<div class = "Header">
-			<h1> RECORD RIGHT </h1> 
-		</div>
+        <div class="jumbotron">
+    		<p> 
+                <div style = "float: right;">
+                    <img src = "{{url_for('static', filename = 'logo.png')}}"> 
+                </div>
+            </p>
+    		<div class = "Header">
+    			<h1> RECORD RIGHT </h1> 
+    		</div>
+        </div>
 
 		{% block app_content %}{% endblock %}
 
