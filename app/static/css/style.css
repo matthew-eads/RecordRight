@@ -6,14 +6,16 @@ body {
 	background-color: #aaff80;
 }
 
-.Header {
+#Header {
 	text-align: center;
-	font-size: 48px;
+	font-size: 30px;
 	font-family: copperplate;
 	/*font-family: Impact, Charcoal, sans-serif;*/
 	/*font-family: "Times New Roman", Times, serif;*/
 	background-color: #ffffff;
 	color: #009900;
+        margin-top: 5px;
+        margin-bottom: 5px;
 }
 
 .button {
@@ -28,6 +30,8 @@ body {
 
 .jumbotron {
 	background-color: #fff;
+        padding-top: 30px;
+        padding-bottom: 30px;
 }
 
 .vertical-buffers {
@@ -39,6 +43,9 @@ body {
 	margin-bottom: 20px;
 }
 
+<<<<<<< HEAD
 #logo {
 	margin-right: 25%;
 }
+=======
+>>>>>>> a02066b5c71a04b5adbd5833fd21248d2a3302ad
