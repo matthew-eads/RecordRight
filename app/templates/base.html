@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<!-- this template is inherited by others -->
-<html>
-    <head>
-        <title>Welcome to RecordRight</title>
-        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
-    </head>
+{% extends "bootstrap/base.html" %}
+{% block content %}
+
+        {% block title %}Welcome to RecordRight{% endblock %}
+        {% block styles %}
+        	{{super()}}
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+        {% endblock %}
+ 
   
     <body>
     		<p> <div style = "float: right;"><img src = "{{url_for('static', filename = 'logo.png')}}"> </div> </p>
@@ -12,8 +14,9 @@
 			<h1> RECORD RIGHT </h1> 
 		</div>
 
-		{% block content %}{% endblock %}
+		{% block app_content %}{% endblock %}
+
+		
 
     </body>
-  
-</html>
+    {% endblock %}

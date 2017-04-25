@@ -3,10 +3,12 @@
 # a whole project)
 
 from flask import Flask
+from flask_bootstrap import Bootstrap
 from sqlalchemy import *
 
 app = Flask(__name__)
 # contains some paths necessary for db
 app.config.from_object('config')
+Bootstrap(app)
 
 from app import views
