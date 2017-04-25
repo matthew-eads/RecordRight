@@ -281,9 +281,8 @@ def process_menu_1(message, patient):
             return_body = "Not a valid option, text 1 to fetch, 2 to update, or 3 for help."
             new_menu_state = 1
     except:
-        return_body = ("We're sorry, but there has been an internal error."
-                       "Please try sending your message again")
-        new_menu_state = 1 
+        return_body = ("We're sorry, but there has been an internal error.")
+        new_menu_state = 0
     return (return_body, new_menu_state)
 
 def process_menu_2(message, patient):
