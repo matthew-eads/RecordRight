@@ -34,9 +34,22 @@ def index():
 def patient_data(id):
 	# this converts the patient variable, which is a string, into a dict
 	patient = session.query(Patient).filter(Patient.id == id).all()
-        print("past visit notes:" )
-        print(patient[0].past_visit_notes)
-	return render_template('patient_data.html', patient=patient)
+
+        # i hate everything
+        visit_notes = patient[0].past_visit_notes
+        # maybe a better way to do this... but this'll work for now
+        # keep the visit notes sorted based on date
+        if visit_notes is None:
+                sorted_notes = None
+        else:
+                try:
+                        sorted_notes = sorted(visit_notes.iteritems(), 
+                                              key=lambda datestr: time.strptime(datestr[0], "%m/%d/%Y"))
+                except:
+                        sorted_notes = list(visit_notes.iteritems())
+                        
+
+	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes)
 
 
 @app.route('/update_patient_data/<path:id>', methods=['GET', 'POST'])
@@ -51,7 +64,8 @@ def update_patient_data(id):
 		form.DOB.data = patient.DOB
 		form.hx.data = patient.hx
                 form.phone_number.data = patient.phone_number
-                form.visit_date.data = str(datetime.date.today())
+                today = datetime.date.today().strftime("%m/%d/%Y")
+                form.visit_date.data = today
 	if form.validate() and request.method == 'POST':
 		patient.name = form.name.data
 		patient.DOB = form.DOB.data
@@ -62,6 +76,15 @@ def update_patient_data(id):
                         if patient.past_visit_notes is None:
                                 patient.past_visit_notes = {}
                         patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
+                        
+                        #TODO remove this... this is just for fixing date inconsistencies
+                        for datestr in patient.past_visit_notes.keys():
+                                try:
+                                        datetime.datetime.strptime(datestr, "%m/%d/%Y")
+                                except ValueError:
+                                        date = datetime.datetime.strptime(datestr, "%Y-%m-%d")
+                                        patient.past_visit_notes[date.strftime("%m/%d/%Y")] = patient.past_visit_notes[datestr]
+                                        del patient.past_visit_notes[datestr]
                 else:
                         print("not adding visit notes")
 		database.session.commit()
@@ -93,6 +116,9 @@ def login():
 @app.route('/new_patient', methods=['GET', 'POST'])
 def create_patient():
 	form = NewPatientForm(request.form)
+        if request.method == 'GET':
+                today = datetime.date.today().strftime("%m/%d/%Y")
+                form.visit_date.data = today
 	if form.validate() and request.method == 'POST':
                 notes = {}
                 if form.visit_notes.data is not None and form.visit_date.data is not None:
@@ -104,6 +130,7 @@ def create_patient():
 		database.session.commit()
 		if form.phone_number.data is not None:
 			request_session = FuturesSession()
+                        date = datetime.datetime.strptime(form.DOB.data, "%m/%d/%Y")
 			data = {"name":form.name.data, "birth_year":"1970", "birth_month":"01",
 				"birth_day":"01", "phone_number":form.phone_number.data,
 				"address":"None", "notes":form.visit_notes.data, "rr_id":str(new_patient.id)}

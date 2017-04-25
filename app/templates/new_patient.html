@@ -2,9 +2,28 @@
 {% block content %}
 	<h1> New Patient </h1>	
 
-	<form action="" method="post" name="login">
+    <script type="text/javascript">
+      function validate() {
+        var date_regex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/ ;
+        if(!(date_regex.test(document.newpatient.DOB.value)))
+        {
+          alert("Please enter a valid date of birth (ex: 12/25/1990)");
+          document.newpatient.DOB.focus();
+          return false;
+        }
+        if(!(date_regex.test(document.newpatient.visit_date.value)))
+        {
+          alert("Please enter a valid visit date (ex: 12/25/1990)");
+          document.newpatient.visit_date.focus();
+          return false;
+        }
+
+        return true;
+      }
+    </script>
+	<form action="" method="post" name="newpatient" onsubmit="return(validate());">
 		<p> Name: {{form.name}} </p>
-		<p> DOB: {{form.DOB}} </p>
+		<p> DOB (mm/dd/yyyy): {{form.DOB}} </p>
 		<p> History: {{form.hx}} </p>
 		<p> Phone Number: {{form.phone_number}} </p>
         <p> Visit Notes:

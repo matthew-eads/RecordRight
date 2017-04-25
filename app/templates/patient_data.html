@@ -10,7 +10,7 @@
           {% if patient[0].past_visit_notes is none or patient[0].past_visit_notes|length == 0 %}
             <p>No past visits</p>
           {% else %}
-            {% for date, visit in patient[0].past_visit_notes.iteritems() %}
+            {% for date, visit in visit_notes %}
             <p>{{date}} : {{visit}}</p>
             {% endfor %}
           {% endif %}
