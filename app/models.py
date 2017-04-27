@@ -4,6 +4,7 @@ from config import WHOOSH_BASE
 from whooshalchemy import IndexService
 from database import session
 from sqlalchemy.ext.mutable import MutableDict
+import whooshalchemy
 
 class User(Base):
 	__tablename__ = 'users'
@@ -15,7 +16,7 @@ class User(Base):
 
 class Patient(Base):
 	__tablename__ = 'patients'
-	__searchable__ = ['name']
+	__searchable__ = ['name', 'DOB', 'hx', 'phone_number', 'address', 'past_visit_notes']
 	id = Column(Integer, primary_key=True)
 	name = Column(String, index=True)
 	DOB = Column(String, index=True)
@@ -27,14 +28,14 @@ class Patient(Base):
 	def __repr__(self):
 		return '<Patient %r %r %r>'%(self.name, self.DOB, self.hx)
 
-from app import app
+# from app import app
 
-import sys
-if sys.version_info >= (3, 0):
-    enable_search = False
-else:
-    enable_search = True
-    import whooshalchemy
+# import sys
+# if sys.version_info >= (3, 0):
+#     enable_search = False
+# else:
+#     enable_search = True
+#     import whooshalchemy
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}
 
