@@ -219,6 +219,7 @@ def create_reminder(id):
 def show_results():
 	return render_template('results.html', results=results)
 
+  
 
 
 

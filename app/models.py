@@ -21,6 +21,7 @@ class Patient(Base):
 	DOB = Column(String, index=True)
 	hx = Column(String, index=True)
 	phone_number = Column(String, index=True)
+        address = Column(String, index=True)
         past_visit_notes = Column(MutableDict.as_mutable(PickleType))
 
 	def __repr__(self):

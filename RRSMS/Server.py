@@ -3,23 +3,26 @@ from twilio.rest import TwilioRestClient
 import sys,os 
 import argparse
 import datetime
-from flask import Flask, request, redirect, session, make_response, Response
+from flask import Flask, request, redirect, session, make_response, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
 from functools import wraps
+import time
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-p', '--production', action='store_true')
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--production', action='store_true')
 
-args = parser.parse_args(sys.argv[1:])
-production = args.production
+    args = parser.parse_args(sys.argv[1:])
+    production = args.production
+    SQLALCHEMY_ECHO = False if production else True
 
 port = int(os.getenv('PORT', '5001'))
 ACCOUNT_SID = "ACbaca90abfe93b3a0c75a44d71ed1e0c2"
 AUTH_TOKEN = "8b1c193701c6f7332f669d1448ddbc68"
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
-SQLALCHEMY_ECHO = False if production else True
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = 'top secret'
 app =  Flask(__name__) 
@@ -101,7 +104,8 @@ def add_db():
         else:
             body = ("Welcome to RecordRight! You can text this number to check "
                 "information in your record (such as notes from recent visits) "
-                "or update personal information. Send any message to begin.")
+                "or update personal information. Send any message to begin."
+                "Send 'QUIT' at any time to return to the main menu, or 'HELP' for help.")
             client.messages.create(to=to_number, from_="+19182387039", body=body)
             return Response("Successfully updated db", 200, {})
     except Exception as e:
@@ -135,7 +139,8 @@ def update_db():
             # send a welcome message
             body = ("Welcome to RecordRight! You can text this number to check "
                 "information in your record (such as notes from recent visits) "
-                "or update personal information. Send any message to begin.")
+                "or update personal information. Send any message to begin."
+                "Send 'QUIT' at any time to return to the main menu, or 'HELP' for help.")
             client.messages.create(to=request["phone_number"], from_="+19182387039", body=body)
 
 
@@ -242,7 +247,7 @@ def select_column(m, patient):
     elif "dob" in message or "birth" in message:
         # this is a bit of an odd one because we split
         # the dob accross 3 columns
-        return ("{}-{}-{}".format(patient.birth_year, patient.birth_month, patient.birth_day), "dob")
+        return ("{}/{}/{}".format(patient.birth_year, patient.birth_month, patient.birth_day), "dob")
     else:
         print("address in message? {}".format("address" in message))
         return (None, None)
@@ -295,12 +300,9 @@ def process_menu_2(message, patient):
         return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
         new_menu_state = 2
     else:
-        return_body = ("Value for {} is \"{}\". Text '1' to fetch information, "
+        return_body = ("{} is currently \"{}\". Text '1' to view a different field, "
                        "'2' to update information in your record, or '3' for more help.").format(message, return_body)
         new_menu_state = 1 # for now
-    if return_body is None: #TODO this is now obsolete
-        # no value
-        return_body = "No value in this field"
     return (return_body, new_menu_state)
 
 def process_menu_3(message, patient):
@@ -312,7 +314,7 @@ def process_menu_3(message, patient):
         return_body = "Unknown field {}. Please select from: name, date of birth, phone number, address, or notes.".format(message)
         new_menu_state = 3
     else:
-        extra = " in YYYY-MM-DD format" if colname == "dob" else ""
+        extra = " in YYYY/MM/DD format" if colname == "dob" else ""
         return_body = "Current value for this field is \"{}\". Please reply with a new value{}.".format(cur_data, extra)
         new_menu_state = 4
         session['field'] = colname
@@ -326,19 +328,15 @@ def process_menu_4(message, patient):
         col = session['field']
         if col == "dob":
             try:
-                dob = datetime.datetime.strptime(message, "%Y-%m-%d")
+                dob = datetime.datetime.strptime(message, "%Y/%m/%d")
             except:
                 return_body = ("Error parsing date: please try again with "
-                               "a correctly formatted date (ex: 1999-03-01)")
+                               "a correctly formatted date (ex: 1999/03/01)")
                 new_menu_state = 4
             else:
                 patients = db.session.query(models_test.Patient).\
                            filter(models_test.Patient.id == patient.id).\
                            update({"birth_year":dob.year, "birth_month":dob.month, "birth_day":dob.day})
-
-                #patient.birth_year = dob.year
-                #patient.birth_month = dob.month
-                #patient.birth_day = dob.day
                 db.session.commit()
                 return_body = ("Success, thank you for using RecordRight. Text '1' to fetch information, "
                                "'2' to update information in your record, or '3' for more help.")
@@ -347,18 +345,33 @@ def process_menu_4(message, patient):
         else:
             # NB: all fields except dob are strings, so we automatically wrap the
             # value in quotes, as dob is handled previously. 
-            print("Updating, setting {} to {} where name = {}".format(col,message,patient.name))
-            stmt = text("UPDATE patients SET {} = '{}' WHERE name = '{}'".format(col, message, patient.name))
+            print("Updating, setting {} to {} where id = {}".format(col,message,patient.id))
+            stmt = text("UPDATE patients SET {} = '{}' WHERE id = {}".format(col, message, patient.id))
             db.engine.execute(stmt)
             return_body = ("Success, thank you for using RecordRight. Text '1' to fetch information, "
                                "'2' to update information in your record, or '3' for more help.")
             new_menu_state = 1
+        # save update info
+        save_info(col, message, patient.rr_id)
     except Exception as e:
         print("Error: {}".format(e))
         return_body = "Error updating {} to {}".format(session.get('field', 'unkown field'), message)
         new_menu_state = 0
     return (return_body, new_menu_state)
 
+def save_info(col, message, rr_id):
+    client_id = int(request.values['client_id'])
+    updates = db.session.query(models_test.Updates).\
+              filter(models_test.Updates.client_id == client_id).first()
+
+    timestamp = time.time()
+    new_update = (rr_id, col, message, timestamp)
+    if updates is None:
+        updates = models_test.Updates(data=[new_update], client_id=client_id)
+        db.session.add(updates)
+    else:
+        updates.data.append(new_update)
+    db.session.commit()
 
 # The phone number doesn't exist in the db, so lets add it!
 def process_menu_9(message, number): 
@@ -386,7 +399,6 @@ def process_menu_10(message, number):
 
 # message should contain DOB YYYY-MM-DD
 def process_menu_11(message, number):
-    #import pdb; pdb.set_trace()
     name = ""
     try:
         name = session['patient_name']
@@ -440,6 +452,42 @@ def process_help(menu_state):
     new_menu_state = menu_state
 
     return (return_body, new_menu_state)
+
+@app.route('/get_update', methods=['GET'])
+@requires_auth
+def get_update():
+    try:
+        print("received update req")
+        client_id = int(request.values['client_id'])
+        updates = db.session.query(models_test.Updates).\
+                  filter(models_test.Updates.client_id == client_id).first()
+        return jsonify(updates.data)
+    # get the client id
+    # open its file
+    # send back data
+    except Exception as e:
+        print("Error fetching update: {}".format(e))
+        return Response("Error fetching update", 200, {})
+
+@app.route('/update_ack', methods=['GET'])
+@requires_auth
+def update_ack():
+    # get client id
+    # get timestamp being acked
+    # wipe data
+    try:
+        print("received ack")
+        client_id = int(request.values['client_id'])
+        last_timestamp = float(request.values['timestamp'])
+        updates = db.session.query(models_test.Updates).\
+                  filter(models_test.Updates.client_id == client_id).first()
+        updates.data = [(rrid, col, m, timestamp) for (rrid, col, m, timestamp) in
+                        updates.data if timestamp < last_timestamp]
+        db.session.commit()
+        return Response("Cleaned up, thanks", 200, {})
+    except Exception as e:
+        print("Error acking update: {}".format(e))
+        return Response("Error processing ack", 200, {})
 
 
 if __name__ == '__main__':

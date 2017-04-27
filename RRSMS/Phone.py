@@ -43,7 +43,7 @@ def main():
             print("Goodbye.")
             break
         
-        data = {"From":number, "Body":message}
+        data = {"From":number, "Body":message, 'client_id':1}
         response = requests.post("{}:{}".format(url, port), params=data, cookies=cookies)
         cookies = response.cookies
         if response.status_code != 200:

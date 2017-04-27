@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from Server import app, db
+from sqlalchemy.ext.mutable import MutableList
 
 class Patient(db.Model):
     __tablename__ = 'patients'
@@ -25,3 +26,13 @@ class Patient(db.Model):
     
     def __repr__(self):
         return "{}, {}/{}/{}, #: {}".format(self.name, self.birth_month, self.birth_day, self.birth_year, self.phone_number)
+
+
+class Updates(db.Model):
+    __tablename__ = "updates"
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(db.Integer)
+    data = db.Column(MutableList.as_mutable(db.PickleType))
+    def __init__(self, client_id=None, data=None):
+        self.client_id = client_id
+        self.data = data

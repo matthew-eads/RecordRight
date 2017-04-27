@@ -73,6 +73,7 @@ Here is an enumeration of menu states:
 2: Fetch, message should contain field to retrieve
 3: Update, message should contain field to update
 4: Update, message should contain new value for the field
+4: They fetched a field, now can either fetch a new field
 
 9: New message from unknown number - we want to register a new patient
 10: Patient texts back full name
@@ -93,6 +94,41 @@ Here is the flowchart of menu states:
        |-12
 
 
-     |-2
+           
+     |-2-5
 0--1-|-1
      |-3-4
+
+
+so... RRSMS/Server.py receives an update
+we know the full patient record, so should be sufficient
+to save the rr_id, the field and new value
+we can just shove those in a list of three-tuples
+[(rr_id, field_name, new_value)] and pickle them 
+somewhere for safe-keeping. 
+
+Ideally, we'd have 1 SMS server, and multiple clients,
+in order to allow them all to remain in sync on their own time,
+one solution would be force them all to 'register' (details tbd),
+so that the server could maintain seperate files of changes
+for each one. So when some texts 'update dob of patient 100 to 1066'
+or whatever, the SMS server would log that in each client's
+file. When client A requests all the changes, we'd send it back
+its file, and on receipt of an ACK, we could wipe it, but
+not wipe client B's file so the data would still be there for it.
+
+For the client-side, best thing is probably to just have a cron
+job running a script to periodically fetch updates from the SMS
+db. 
+
+To further help keep things from getting out-of-whack in a dodgy
+networking environment, it should be assumed some messages will
+be lost. If the client never receives data, it never sends and
+ACK and thats fine, it'll get it next time.
+If the client receives data, but is unable to send an ACK, its
+a slightly trickier problem. Basically, the server will not be 
+able to wipe the data, so will send old updates to the client next
+time, so we need the client to correct for this possibility.
+We can put a timestamp in each transaction, and have the client
+record the timestamp of the last transaction processed, so 
+it can just ignore older ones if it reveives them. 
