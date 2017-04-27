@@ -12,7 +12,7 @@ session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=en
 Base = declarative_base()
 Base.query = session.query_property()
 
-def init_session():
+def init_db():
 	import app.models
 	sys.stderr.write('INTIALIZING session \n \n \n')
 	# actually creates the session -- should only run this once
