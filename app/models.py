@@ -6,6 +6,13 @@ from database import session
 from sqlalchemy.ext.mutable import MutableDict
 import whooshalchemy
 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import Column
+from sqlalchemy.types import Integer, Text, DateTime
+from sqlalchemy.engine import create_engine
+from sqlalchemy.orm.session import sessionmaker
+
+
 class User(Base):
 	__tablename__ = 'users'
 	id = Column(Integer, primary_key=True)
@@ -28,14 +35,6 @@ class Patient(Base):
 	def __repr__(self):
 		return '<Patient %r %r %r>'%(self.name, self.DOB, self.hx)
 
-# from app import app
-
-# import sys
-# if sys.version_info >= (3, 0):
-#     enable_search = False
-# else:
-#     enable_search = True
-#     import whooshalchemy
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}
 

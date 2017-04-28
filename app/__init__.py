@@ -5,8 +5,13 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from sqlalchemy import *
+#import whooshalchemy
+#from app.models import Patient
+
 
 app = Flask(__name__)
+
+#whooshalchemy.whoosh_index(app, Patient)
 # contains some paths necessary for db
 app.config.from_object('config')
 Bootstrap(app)
