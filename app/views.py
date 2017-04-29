@@ -27,7 +27,7 @@ def index():
 	form = SearchForm(request.form)
 	if form.validate() and request.method == 'POST':
 		patients = Patient.search_query(form.keyword.data)
-		
+
 	return render_template('index.html', patients=patients, form = form)
 
 @app.route('/patient_data/<path:id>', methods=['GET', 'POST'])
@@ -64,6 +64,7 @@ def update_patient_data(id):
 		form.DOB.data = patient.DOB
 		form.hx.data = patient.hx
                 form.phone_number.data = patient.phone_number
+                form.address.data = patient.address
                 today = datetime.date.today().strftime("%m/%d/%Y")
                 form.visit_date.data = today
 	if form.validate() and request.method == 'POST':
@@ -71,6 +72,7 @@ def update_patient_data(id):
 		patient.DOB = form.DOB.data
 		patient.hx = form.hx.data
 		patient.phone_number = form.phone_number.data
+                patient.address = form.address.data
                 if form.visit_notes.data is not None:
                         print("adding visit notes")
                         if patient.past_visit_notes is None:
@@ -125,7 +127,7 @@ def create_patient():
                         notes[form.visit_date.data] = form.visit_notes.data
 		new_patient = Patient(name = form.name.data, DOB = form.DOB.data, 
                                       hx = form.hx.data, phone_number=form.phone_number.data,
-                                      past_visit_notes = notes)
+                                      past_visit_notes = notes, address=form.address.data)
 		database.session.add(new_patient)
 		database.session.commit()
 		if form.phone_number.data is not None:
@@ -133,7 +135,7 @@ def create_patient():
                         date = datetime.datetime.strptime(form.DOB.data, "%m/%d/%Y")
 			data = {"name":form.name.data, "birth_year":str(date.year), "birth_month":str(date.month),
 				"birth_day":str(date.day), "phone_number":form.phone_number.data,
-				"address":"None", "notes":form.visit_notes.data, "rr_id":str(new_patient.id)}
+				"address":form.address.data, "notes":form.visit_notes.data, "rr_id":str(new_patient.id)}
 
 			request_session.post("{}/add".format(RRSMS_URL), params=data, 
 					     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
@@ -146,7 +148,7 @@ def create_reminder(id):
         patient = session.query(Patient).filter(Patient.id == id).first()
         single_form = ReminderForm(request.form)
         recurrent_form = RecurrentReminderForm(request.form)
-        #import pdb; pdb.set_trace()
+        common_reminder_form = CommonReminderForm(request.form)
         if single_form.validate() and request.method == 'POST':
                 # schedule reminder
                 body = single_form.what.data
@@ -158,11 +160,18 @@ def create_reminder(id):
                 proc.stdin.close()
                 return redirect(url_for('patient_data', id=id))
         
-        if recurrent_form.validate() and request.method == 'POST':
+        if (recurrent_form.validate() or common_reminder_form.validate()) and request.method == 'POST':
                 print("Creating recurrent reminder")
-                f = recurrent_form
+                is_common_selected = common_reminder_form.validate()
+                f = common_reminder_form if is_common_selected else recurrent_form
                 body = f.what.data
                 to_number = patient.phone_number
+                
+                if is_common_selected:
+                        schedule = f.schedule.data
+                else:
+                        schedule = "0 {}-{}/{} */{} * *".format(
+                                f.start_hour.data, f.end_hour.data, f.hours.data, f.days.data)
                 
                 # ok so for the end_after x occurrences, not quite sure what the best way is
                 # best i got right now is just shove a counter in the file
@@ -192,17 +201,19 @@ def create_reminder(id):
                         counter_f = open(counter_name, "w+")
                         counter_f.write("{}\n".format(f.end_after.data))
                         counter_f.close()
-                subcommand = "0 {}-{}/{} */{} * * {}/RRSMS/send_reminder.bash -n {} -m \\\"{}\\\"{}".format(
-                        f.start_hour.data, f.end_hour.data, f.hours.data, 
-                        f.days.data, basedir, to_number, body, run_script)
+
+                subcommand = "{} {}/RRSMS/send_reminder.bash -n {} -m \\\"{}\\\"{}".format(
+                        schedule, basedir, to_number, body, run_script)
+
                 command = "(crontab -l; echo \"{}\") | crontab - ".format(subcommand)
                 print("command is: {}".format(command))
                 proc = subprocess.Popen(["bash"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                 proc.stdin.write(command)
                 proc.stdin.close()
                 print(proc.stdout.read())
+                #import pdb; pdb.set_trace()
                 #TODO: make sure we actually ~~STOP~~ sending messages based on either end_after or end_on
-                if f.end_on.data is not None:
+                if f.end_on.data is not None and f.end_on.data != '':
                         proc = subprocess.Popen(["at", f.end_on.data], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                         proc.stdin.write("crontab -l\n")
                         print("grepping for \"{}\"".format(subcommand))
@@ -212,7 +223,8 @@ def create_reminder(id):
                         
                 return redirect(url_for('patient_data', id=id))
 
-        return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form)
+        return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
+                               common_reminder_form=common_reminder_form)
         
 
 @app.route('/results', methods =['GET', 'POST'])
