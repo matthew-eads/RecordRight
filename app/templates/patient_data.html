@@ -19,6 +19,7 @@
 		<h3> Patient Information </h3>
 		<p> History: {{patient[0].hx}}</p>
 		<p> Phone Number: {{patient[0].phone_number}}</p>
+		<p> Address: {{patient[0].address}}</p>
         <p> Past visit notes:
           {% if patient[0].past_visit_notes is none or patient[0].past_visit_notes|length == 0 %}
             <p>No past visits</p>
