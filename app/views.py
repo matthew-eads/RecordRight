@@ -20,6 +20,7 @@ import sys
 RRSMS_URL = "http://record-right.herokuapp.com"
 # RRSMS_URL = "http://localhost:5001"
 
+
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
@@ -99,8 +100,10 @@ def update_patient_data(id):
 
 		request_session.post("{}/update".format(RRSMS_URL), params=data, 
 				     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
-		
+                flash("Successfully updated patient {}".format(form.name.data))
 		return redirect(url_for('patient_data', id=id))
+        elif request.method == 'POST':
+                flash_errors(form)
 	return render_template('update_patient_data.html', patient=patient, form=form)
 
 
@@ -137,8 +140,10 @@ def create_patient():
 
 			request_session.post("{}/add".format(RRSMS_URL), params=data, 
 					     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
-
+                flash("Successfully added patient {}".format(form.name.data))
 		return redirect('/index')
+        elif request.method == 'POST':
+                flash_errors(form)
 	return render_template('new_patient.html', title="CreatePatient", form=form)
 
 @app.route('/create_reminder/<path:id>', methods=['GET', 'POST'])
@@ -156,6 +161,7 @@ def create_reminder(id):
                 proc = subprocess.Popen(['at', date], stdin=subprocess.PIPE)
                 proc.stdin.write(command)
                 proc.stdin.close()
+                flash("Successfully set reminder for {}".format(patient.name))
                 return redirect(url_for('patient_data', id=id))
         
         if recurrent_form.validate() and request.method == 'POST':
@@ -210,8 +216,12 @@ def create_reminder(id):
                         proc.stdin.close()
                         print("Output: {}".format(proc.stdout.read()))
                         
+                flash("Successfully set reminder for {}".format(patient.name))
                 return redirect(url_for('patient_data', id=id))
-
+        if request.method == 'POST':
+                flash_errors(single_form)
+                flash_errors(recurrent_form)
+        
         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form)
         
 
@@ -222,3 +232,10 @@ def show_results():
 
 
 
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ))
