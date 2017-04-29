@@ -23,17 +23,17 @@ class User(Base):
 
 class Patient(Base):
 	__tablename__ = 'patients'
-	__searchable__ = ['name', 'DOB', 'hx', 'phone_number', 'address', 'past_visit_notes']
+	# __searchable__ = ['name', 'DOB', 'hx', 'phone_number', 'address', 'past_visit_notes']
+	__searchable__ = ['name']
 	id = Column(Integer, primary_key=True)
 	name = Column(String, index=True)
 	DOB = Column(String, index=True)
 	hx = Column(String, index=True)
 	phone_number = Column(String, index=True)
-        address = Column(String, index=True)
-        past_visit_notes = Column(MutableDict.as_mutable(PickleType))
-
+	address = Column(String, index=True)
+	past_visit_notes = Column(MutableDict.as_mutable(PickleType))
 	def __repr__(self):
-		return '<Patient %r %r %r>'%(self.name, self.DOB, self.hx)
+		return '<Patient %r %r %r %r %r %r>'%(self.name, self.DOB, self.hx, self.phone_number, self.address, self.past_visit_notes)
 
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}

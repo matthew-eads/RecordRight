@@ -23,11 +23,18 @@ RRSMS_URL = "http://record-right.herokuapp.com"
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-	#patients = Patient.query.all()
-    patients = database.session.query(Patient).all()
+    # patients = database.session.query(Patient).all()
+    # original way:
+    patients = Patient.query.all()
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
-		patients = Patient.search_query(form.keyword.data)
+        # patients = session.query(Patient).filter_by(search_query(form.keyword.data))
+        # original way: 
+        patients = Patient.search_query(form.keyword.data)
+        # sys.stderr.write("******************************keyword is %s" % form.keyword.data)
+        # sys.stderr.write("patient is %s" % patients)
+        # for p in patients:
+        #     sys.stderr.write("******************************patient is %s" % p)
     return render_template('index.html', patients=patients, form = form)
 
 @app.route('/patient_data/<path:id>', methods=['GET', 'POST'])
