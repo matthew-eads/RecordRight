@@ -23,7 +23,6 @@ class User(Base):
 
 class Patient(Base):
 	__tablename__ = 'patients'
-	# __searchable__ = ['name', 'DOB', 'hx', 'phone_number', 'address', 'past_visit_notes']
 	__searchable__ = ['name']
 	id = Column(Integer, primary_key=True)
 	name = Column(String, index=True)

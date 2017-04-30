@@ -1,8 +1,25 @@
 {% extends "base.html" %}
 {% block app_content %}
 
-        
+	<form action="" method="post" name="messageform">
+	  <p>Message to send: <input type="text" name="message" onblur="document.recurrentreminder.what.value = this.value; document.reminder.what.value = this.value; document.commonreminderform.what.value = this.value"/> </p>
+	</form>
 
+
+
+        <h3>Pick a common reminder schedule</h3>
+        <form action="" name="commonreminderform" method="post">
+          <input type="hidden" name="form-name" value="commonreminderform">
+          {{common_reminder_form.what}}
+          {{common_reminder_form.schedule}}
+          <p> End after {{recurrent_form.end_after}} occurrences 
+            OR on {{recurrent_form.end_on}} </p>
+
+          <input type="submit" value="Submit"/>
+        </form>
+        <h4>OR</h4>
+        <p></p>
+        <h3>Specify a reminder schedule</h3>
         <form name="whichreminder">
             <input type="radio" name="reminders"  value="singleform" checked>Single Reminder<br>
             <input type="radio" name="reminders"  value="recurrentform">Recurring Reminder
@@ -35,8 +52,8 @@
 
         <div id="singleform">
 	<form action="" method="post" name="reminder">
-
-		<p> Message to send: {{single_form.what}} </p>
+      <input type="hidden" name="form-name" value="singleform">
+	  {{single_form.what}}
     <!-- <div class="row"> -->
 
   		<p> Date to send (MM/DD/YY): {{single_form.when}} </p>
@@ -48,8 +65,8 @@
           <!-- <i class="glyphicon glyphicon-info-sign" rel="tooltip" title="Key active" id="blah"></i> -->
         <div id="recurrentform" style="display:none">
 	<form action="" method="post" name="recurrentreminder">
-
-		<p> Message to send: {{recurrent_form.what}} </p>
+      <input type="hidden" name="form-name" value="recurrentreminderform">
+                 {{recurrent_form.what}}
 		<p> Every {{recurrent_form.days}} day(s) </p>
                 <p> Every {{recurrent_form.hours}} hour(s)
                    between {{recurrent_form.start_hour}} and 
