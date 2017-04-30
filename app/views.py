@@ -55,7 +55,6 @@ def index():
 
 
         connection.commit()
-
         return render_template('results.html', patients=patients, form = form, query = form.keyword.data)
     return render_template('index.html', announcements=announcements, form = form)
 

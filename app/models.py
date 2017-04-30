@@ -29,11 +29,10 @@ class Patient(Base):
 	DOB = Column(String, index=True)
 	hx = Column(String, index=True)
 	phone_number = Column(String, index=True)
-        address = Column(String, index=True)
-        past_visit_notes = Column(MutableDict.as_mutable(PickleType))
-
+	address = Column(String, index=True)
+	past_visit_notes = Column(MutableDict.as_mutable(PickleType))
 	def __repr__(self):
-		return '<Patient %r %r %r>'%(self.name, self.DOB, self.hx)
+		return '<Patient %r %r %r %r %r %r>'%(self.name, self.DOB, self.hx, self.phone_number, self.address, self.past_visit_notes)
 
 class Announcement(Base):
 	__tablename__ = 'announcements'
