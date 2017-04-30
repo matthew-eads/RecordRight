@@ -3,7 +3,7 @@ from app import app
 from flask import render_template, redirect, request, flash, url_for
 from .forms import *
 from wtforms import Form, validators
-from app.models import Patient
+from app.models import Patient, Announcement
 from database import session
 import database
 import logging
@@ -282,11 +282,18 @@ def create_reminder(id):
                                common_reminder_form=common_reminder_form)
         
 
-@app.route('/results', methods =['GET', 'POST'])
-def show_results():
-	return render_template('results.html', results=results)
-
-  
+@app.route('/newannouncement', methods =['GET', 'POST'])
+def create_announcement():
+        form = NewAnnouncementForm(request.form)
+        if request.method == 'GET':
+                today = datetime.date.today().strftime("%m/%d/%Y")
+                form.date.data = today
+        if form.validate() and request.method == 'POST':
+                if form.announcement.data is not None and form.name.data is not None and form.severity.data is not None:
+                    new_announcement = Announcement(name = form.name.data, announcement = form.announcement.data, date = form.date.data, severity = form.severity.data)
+                    database.session.add(new_announcement)
+                    database.session.commit()
+        return render_template('new_announcement.html', form = form)
 
 
 
