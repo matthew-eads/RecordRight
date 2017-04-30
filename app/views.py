@@ -10,6 +10,7 @@ import logging
 import datetime, time
 from config import basedir 
 import subprocess 
+import sqlite3
 
 from requests_futures.sessions import FuturesSession
 from requests.auth import HTTPBasicAuth
@@ -27,7 +28,32 @@ def index():
     patients = database.session.query(Patient).all()
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
-		patients = Patient.search_query(form.keyword.data)
+        def dict_factory(cursor, row):
+            d = {}
+            for idx, col in enumerate(cursor.description):
+                d[col[0]] = row[idx]
+            return d
+
+        connection = sqlite3.connect('app.db')
+        connection.row_factory = dict_factory
+        cursor = connection.cursor()
+        query = '%' + form.keyword.data + '%'
+
+        cursor.execute("SELECT * FROM patients WHERE hx LIKE ? OR DOB LIKE ? OR name LIKE ? OR phone_number LIKE ? OR address LIKE ?", (query, query, query, query, query,))
+
+        patient_dicts = []
+
+        patient_dicts = cursor.fetchall()
+
+        patients = []
+
+        for p in patient_dicts:
+            current = Patient(name = p['name'], DOB = p['DOB'], id = p['id'], hx = p['hx'], phone_number = p['phone_number'], address = p['address'])
+            patients.append(current)
+
+
+        connection.commit()
+
     return render_template('index.html', patients=patients, form = form)
 
 @app.route('/patient_data/<path:id>', methods=['GET', 'POST'])
