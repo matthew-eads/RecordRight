@@ -25,7 +25,9 @@ RRSMS_URL = "http://record-right.herokuapp.com"
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-    patients = database.session.query(Patient).all()
+    announcements = []
+    announcements.append("POLIO VACCINE")
+    announcements.append("FLU SHOT")
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
         def dict_factory(cursor, row):
@@ -54,7 +56,8 @@ def index():
 
         connection.commit()
 
-    return render_template('index.html', patients=patients, form = form)
+        return render_template('results.html', patients=patients, form = form, query = form.keyword.data)
+    return render_template('index.html', announcements=announcements, form = form)
 
 @app.route('/patient_data/<path:id>', methods=['GET', 'POST'])
 def patient_data(id):

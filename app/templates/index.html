@@ -9,6 +9,7 @@
 			</div>
 		</div>
 	</div>
+	<h1> HOSPITAL ANNOUNCEMENTS </h1>
 	<div class="container">
 		<div class="row vertical-buffers">
 			<div class="col-md-8">
@@ -16,13 +17,11 @@
 				<div class="mx-5">
 					<table class="table table-striped">
 						<tr scope="row"> 
-							<th>Patient</th>
-							<th>DOB</th>
+							<th>Announcement</th>
 						</tr>
-						{% for patient in patients %}
+						{% for an in announcements %}
 						<tr scope="row">
-							<th><p><a href= "{{ url_for('patient_data', id=patient.id)}}"> {{patient.name}}</a></p></th>
-							<th>{{patient.DOB}}</th>
+							<th>{{an}}</th>
 						</tr>
 						{% endfor %}
 					</table>
