@@ -24,7 +24,6 @@ RRSMS_URL = "http://record-right.herokuapp.com"
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-	#patients = Patient.query.all()
     patients = database.session.query(Patient).all()
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
@@ -151,6 +150,10 @@ def create_patient():
 @app.route('/create_reminder/<path:id>', methods=['GET', 'POST'])
 def create_reminder(id):
         patient = session.query(Patient).filter(Patient.id == id).first()
+        if patient.phone_number is None:
+            # can't send a reminder without a number
+            flash("There is no phone number recorded for {}. Please update their record with their phone number to send them reminders".format(patient.name))
+            return redirect(url_for('patient_data', id=id))            
         single_form = ReminderForm(request.form)
         recurrent_form = RecurrentReminderForm(request.form)
         common_reminder_form = CommonReminderForm(request.form)
@@ -173,6 +176,13 @@ def create_reminder(id):
                 body = f.what.data
                 to_number = patient.phone_number
                 
+                if (f.end_after.data is None or f.end_after.data == "") and (
+                    f.end_on.data is None or f.end_after.data == ""):
+                        flash("Error: please specify either the 'end after' field or the 'end on' field")
+                        return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
+                                               common_reminder_form=common_reminder_form)
+        
+
                 if is_common_selected:
                         schedule = f.schedule.data
                 else:
@@ -231,9 +241,13 @@ def create_reminder(id):
                 return redirect(url_for('patient_data', id=id))
 
         if request.method == 'POST':
-                flash_errors(single_form)
-                flash_errors(recurrent_form)
-                flash_errors(common_reminder_form)
+                form_name = request.form['form-name']
+                if form_name == "singleform":
+                        flash_errors(single_form)
+                elif form_name == "recurrentreminderform":
+                        flash_errors(recurrent_form)
+                else:
+                        flash_errors(common_reminder_form)
         
         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
                                common_reminder_form=common_reminder_form)
@@ -248,9 +262,11 @@ def show_results():
 
 
 def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ))
+        for field, errors in form.errors.items():
+                for error in errors:
+                        fieldname = getattr(form, field).label.text
+                        if fieldname == "what":
+                                fieldname = "message"
+                        if fieldname == "when":
+                                fieldname = "date to send"
+                        flash(u"Error in the %s field - %s" % (fieldname, error))

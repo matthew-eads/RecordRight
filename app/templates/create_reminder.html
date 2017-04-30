@@ -9,6 +9,7 @@
 
         <h3>Pick a common reminder schedule</h3>
         <form action="" name="commonreminderform" method="post">
+          <input type="hidden" name="form-name" value="commonreminderform">
           {{common_reminder_form.what}}
           {{common_reminder_form.schedule}}
           <p> End after {{recurrent_form.end_after}} occurrences 
@@ -51,7 +52,7 @@
 
         <div id="singleform">
 	<form action="" method="post" name="reminder">
-
+      <input type="hidden" name="form-name" value="singleform">
 	  {{single_form.what}}
     <!-- <div class="row"> -->
 
@@ -64,6 +65,7 @@
           <!-- <i class="glyphicon glyphicon-info-sign" rel="tooltip" title="Key active" id="blah"></i> -->
         <div id="recurrentform" style="display:none">
 	<form action="" method="post" name="recurrentreminder">
+      <input type="hidden" name="form-name" value="recurrentreminderform">
                  {{recurrent_form.what}}
 		<p> Every {{recurrent_form.days}} day(s) </p>
                 <p> Every {{recurrent_form.hours}} hour(s)
