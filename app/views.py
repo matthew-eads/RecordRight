@@ -186,6 +186,15 @@ def create_patient():
                 flash_errors(form)
 	return render_template('new_patient.html', title="CreatePatient", form=form)
 
+@app.route('/delete_patient/<path:id>')
+def delete_patient(id):
+	patient = session.query(Patient).filter(Patient.id == id).all()
+	name = patient[0].name
+	session.query(Patient).filter(Patient.id == id).delete()
+	database.session.commit()
+	flash("Successfully deleted patient {}".format(name))
+	return redirect(url_for('index'))
+
 @app.route('/create_reminder/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 def create_reminder(id, search_id):
         patient = session.query(Patient).filter(Patient.id == id).first()
