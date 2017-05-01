@@ -8,10 +8,12 @@
     		<p> Severity: </p>
         		{{ form.severity }}
 
-        	<p><input type="submit" value="Submit"></p>
+        	<p><input class="btn btn-default" type="submit" value="Submit"></p>
 
 	</form>
 
-	<form action = "{{ url_for('index') }}"><input type="submit" value="Cancel"/></form>
+	{# <form class= "btn btn-default" action =" " onsubmit="redirect(url_for('index')"><input type="submit" value="Cancel"/></form> #}
+
+	<a href="{{ url_for('index') }}" class="btn btn-default">Cancel</a>
 
 {% endblock %}
