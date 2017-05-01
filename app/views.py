@@ -29,7 +29,7 @@ search_id = 0
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-    announcements = database.session.query(Announcement).all()
+    announcements = reversed(database.session.query(Announcement).all())
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
         search_id = generate_search_results(form)
