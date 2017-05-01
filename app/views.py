@@ -15,7 +15,6 @@ import sqlite3
 from requests_futures.sessions import FuturesSession
 from requests.auth import HTTPBasicAuth
 
-
 import sys
 
 RRSMS_URL = "http://record-right.herokuapp.com"
@@ -62,7 +61,7 @@ def generate_search_results(form):
             current = Patient(name = p['name'], DOB = p['DOB'], id = p['id'], hx = p['hx'], phone_number = p['phone_number'], address = p['address'])
             patients.append(current)
 
-
+            patients.sort(key=lambda p: p.name.split()[-1])
         connection.commit()
 
         search_data = [patients, form.keyword.data, form]
@@ -173,6 +172,16 @@ def create_patient():
 		database.session.commit()
 		if form.phone_number.data is not None:
 			request_session = FuturesSession()
+
+                        (month, day, year) = form.DOB.data.split('/')
+                        if len(month) == 1:
+                            month = "0{}".format(month)
+                        if len(day) == 1:
+                            day = "0{}".format(day)
+                        if len(year) == 2:
+                            prefix = "19" if int(year) > (datetime.date.today().year - 2000) else "20"
+                            year = "{}{}".format(prefix, year)
+                        
                         date = datetime.datetime.strptime(form.DOB.data, "%m/%d/%Y")
 			data = {"name":form.name.data, "birth_year":str(date.year), "birth_month":str(date.month),
 				"birth_day":str(date.day), "phone_number":form.phone_number.data,
@@ -321,7 +330,6 @@ def create_announcement():
                     database.session.add(new_announcement)
                     database.session.commit()
         return render_template('new_announcement.html', form = form)
-
 
 def flash_errors(form):
         for field, errors in form.errors.items():

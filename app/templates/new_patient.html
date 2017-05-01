@@ -4,7 +4,7 @@
 
     <script type="text/javascript">
       function validate() {
-        var date_regex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/ ;
+        var date_regex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)?\d{2}$/ ;
         if(!(date_regex.test(document.newpatient.DOB.value)))
         {
           alert("Please enter a valid date of birth (ex: 12/25/1990)");
@@ -28,7 +28,7 @@
 		<p> Phone Number: {{form.phone_number}} </p>
 		<p> Address: {{form.address}} </p>
         <p> Visit Notes:
-          <p> Visit Date: {{form.visit_date}} </p>
+          <p> Visit Date: {{form.visit_date(class="dtpicker")}} </p>
           <p> Notes: {{form.visit_notes}} </p>
         </p>
 

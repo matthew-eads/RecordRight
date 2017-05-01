@@ -1,5 +1,10 @@
 {% extends "base.html" %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}
 {% block app_content %}
+
 
 	<form action="" method="post" name="messageform">
 	  <p>Message to send: <input type="text" name="message" onblur="document.recurrentreminder.what.value = this.value; document.reminder.what.value = this.value; document.commonreminderform.what.value = this.value"/> </p>
@@ -13,7 +18,7 @@
           {{common_reminder_form.what}}
           {{common_reminder_form.schedule}}
           <p> End after {{recurrent_form.end_after}} occurrences 
-            OR on {{recurrent_form.end_on}} </p>
+            OR on {{recurrent_form.end_on(class="dtpicker")}} </p>
 
           <input class="btn btn-default" type="submit" value="Submit"/>
         </form>
@@ -56,7 +61,7 @@
 	  {{single_form.what}}
     <!-- <div class="row"> -->
 
-  		<p> Date to send (MM/DD/YY): {{single_form.when}} </p>
+  		<p> Date to send (MM/DD/YY): {{single_form.when(class="dtpick")}} </p>
     <!-- </div> -->
 		<p><input class="btn btn-default" type="submit" value="Submit"></p>
 	</form>

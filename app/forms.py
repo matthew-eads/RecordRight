@@ -1,5 +1,7 @@
 # forms.py
-from wtforms import Form, BooleanField, StringField, validators, IntegerField, HiddenField, SelectField, RadioField
+from wtforms import Form, BooleanField, StringField, validators, IntegerField
+from wtforms import HiddenField, SelectField, RadioField
+
 
 class LoginForm(Form):
 	username = StringField('username', [validators.DataRequired()])
