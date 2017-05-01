@@ -21,6 +21,10 @@ import sys
 RRSMS_URL = "http://record-right.herokuapp.com"
 # RRSMS_URL = "http://localhost:5001"
 
+# used for page navigation (like going back to search results from Patient Data page)
+recent_searches = {}
+search_id = 0
+
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
@@ -30,6 +34,11 @@ def index():
     announcements.append("FLU SHOT")
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
+        search_id = generate_search_results(form)
+        return redirect(url_for('results', search_id=search_id))
+    return render_template('index.html', announcements=announcements, form = form)
+
+def generate_search_results(form):
         def dict_factory(cursor, row):
             d = {}
             for idx, col in enumerate(cursor.description):
@@ -55,11 +64,19 @@ def index():
 
 
         connection.commit()
-        return render_template('results.html', patients=patients, form = form, query = form.keyword.data)
-    return render_template('index.html', announcements=announcements, form = form)
 
-@app.route('/patient_data/<path:id>', methods=['GET', 'POST'])
-def patient_data(id):
+        search_data = [patients, form.keyword.data, form]
+        global recent_searches
+        global search_id
+        search_id += 1
+        recent_searches[search_id] = search_data
+        return search_id
+
+        
+
+
+@app.route('/patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+def patient_data(id, search_id):
 	# this converts the patient variable, which is a string, into a dict
 	patient = session.query(Patient).filter(Patient.id == id).all()
 
@@ -77,63 +94,57 @@ def patient_data(id):
                         sorted_notes = list(visit_notes.iteritems())
                         
 
-	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes)
+	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes, search_id=search_id)
 
 
-@app.route('/update_patient_data/<path:id>', methods=['GET', 'POST'])
-def update_patient_data(id):
+@app.route('/update_patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+def update_patient_data(id, search_id):
 	# this converts the patient variable, which is a string, into a dict
 	#import pdb; pdb.set_trace()
-	patients = session.query(Patient).filter(Patient.id == id).all()
-	patient = patients[0]
-	form = NewPatientForm(request.form)
-	if request.method == "GET":
-		form.name.data = patient.name
-		form.DOB.data = patient.DOB
-		form.hx.data = patient.hx
-                form.phone_number.data = patient.phone_number
-                form.address.data = patient.address
-                today = datetime.date.today().strftime("%m/%d/%Y")
-                form.visit_date.data = today
+    patients = session.query(Patient).filter(Patient.id == id).all()
+    patient = patients[0]
+    form = NewPatientForm(request.form)
+    if request.method == "GET":
+    	form.name.data = patient.name
+    	form.DOB.data = patient.DOB
+    	form.hx.data = patient.hx
+    	form.phone_number.data = patient.phone_number
+    	form.address.data = patient.address
+    	today = datetime.date.today().strftime("%m/%d/%Y")
+    	form.visit_date.data = today
 	if form.validate() and request.method == 'POST':
 		patient.name = form.name.data
 		patient.DOB = form.DOB.data
 		patient.hx = form.hx.data
 		patient.phone_number = form.phone_number.data
-                patient.address = form.address.data
-                if form.visit_notes.data is not None:
-                        print("adding visit notes")
-                        if patient.past_visit_notes is None:
-                                patient.past_visit_notes = {}
-                        patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
-                        
-                        #TODO remove this... this is just for fixing date inconsistencies
-                        for datestr in patient.past_visit_notes.keys():
-                                try:
-                                        datetime.datetime.strptime(datestr, "%m/%d/%Y")
-                                except ValueError:
-                                        date = datetime.datetime.strptime(datestr, "%Y-%m-%d")
-                                        patient.past_visit_notes[date.strftime("%m/%d/%Y")] = patient.past_visit_notes[datestr]
-                                        del patient.past_visit_notes[datestr]
-                else:
-                        print("not adding visit notes")
-		database.session.commit()
-
-		request_session = FuturesSession()
-                date = datetime.datetime.strptime(datestr, "%m/%d/%Y")
-		data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), "birth_month":str(date.month),
-			"birth_day":str(date.day), "phone_number":patient.phone_number,
-			"address":"None"}
-                if form.visit_notes.data is not None:
-                        data["notes"] = form.visit_notes.data
-
-		request_session.post("{}/update".format(RRSMS_URL), params=data, 
-				     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
-                flash("Successfully updated patient {}".format(form.name.data))
-		return redirect(url_for('patient_data', id=id))
-        elif request.method == 'POST':
-                flash_errors(form)
-	return render_template('update_patient_data.html', patient=patient, form=form)
+		patient.address = form.address.data
+        if form.visit_notes.data is not None:
+        	print("adding visit notes")
+        	if patient.past_visit_notes is None:
+        		patient.past_visit_notes = {}
+        	patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
+        	#TODO remove this... this is just for fixing date inconsistencies
+        	for datestr in patient.past_visit_notes.keys():
+        		try:
+        			datetime.datetime.strptime(datestr, "%m/%d/%Y")
+        		except ValueError:
+        			date = datetime.datetime.strptime(datestr, "%Y-%m-%d")
+        			patient.past_visit_notes[date.strftime("%m/%d/%Y")] = patient.past_visit_notes[datestr]
+        			del patient.past_visit_notes[datestr]
+        else:
+        	print("not adding visit notes")
+        database.session.commit()
+        request_session = FuturesSession()
+        date = datetime.datetime.strptime(form.DOB.data, "%m/%d/%Y")
+        data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), "birth_month":str(date.month), "birth_day":str(date.day), "phone_number":patient.phone_number, "address":"None"}
+        if form.visit_notes.data is not None:
+        	data["notes"] = form.visit_notes.data
+        request_session.post("{}/update".format(RRSMS_URL), params=data, auth=HTTPBasicAuth("admin", "pickabetterpassword"))
+        flash("Successfully updated patient {}".format(form.name.data))
+        return redirect(url_for('patient_data', id=id, search_id=search_id))
+    elif request.method == 'POST':
+    	flash_errors(form)
+    return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -175,13 +186,13 @@ def create_patient():
                 flash_errors(form)
 	return render_template('new_patient.html', title="CreatePatient", form=form)
 
-@app.route('/create_reminder/<path:id>', methods=['GET', 'POST'])
-def create_reminder(id):
+@app.route('/create_reminder/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+def create_reminder(id, search_id):
         patient = session.query(Patient).filter(Patient.id == id).first()
         if patient.phone_number is None:
             # can't send a reminder without a number
             flash("There is no phone number recorded for {}. Please update their record with their phone number to send them reminders".format(patient.name))
-            return redirect(url_for('patient_data', id=id))            
+            return redirect(url_for('patient_data', id=id, search_id=search_id))            
         single_form = ReminderForm(request.form)
         recurrent_form = RecurrentReminderForm(request.form)
         common_reminder_form = CommonReminderForm(request.form)
@@ -195,7 +206,7 @@ def create_reminder(id):
                 proc.stdin.write(command)
                 proc.stdin.close()
                 flash("Successfully set reminder for {}".format(patient.name))
-                return redirect(url_for('patient_data', id=id))
+                return redirect(url_for('patient_data', id=id, search_id=search_id))
         
         if (recurrent_form.validate() or common_reminder_form.validate()) and request.method == 'POST':
                 print("Creating recurrent reminder")
@@ -208,7 +219,7 @@ def create_reminder(id):
                     f.end_on.data is None or f.end_after.data == ""):
                         flash("Error: please specify either the 'end after' field or the 'end on' field")
                         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
-                                               common_reminder_form=common_reminder_form)
+                                               common_reminder_form=common_reminder_form, search_id=search_id)
         
 
                 if is_common_selected:
@@ -266,7 +277,7 @@ def create_reminder(id):
                         print("Output: {}".format(proc.stdout.read()))
                         
                 flash("Successfully set reminder for {}".format(patient.name))
-                return redirect(url_for('patient_data', id=id))
+                return redirect(url_for('patient_data', id=id, search_id=search_id))
 
         if request.method == 'POST':
                 form_name = request.form['form-name']
@@ -278,16 +289,30 @@ def create_reminder(id):
                         flash_errors(common_reminder_form)
         
         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
-                               common_reminder_form=common_reminder_form)
+                               common_reminder_form=common_reminder_form, search_id=search_id)
         
+@app.route('/results/<path:search_id>', methods=['GET', 'POST'])
+def results(search_id):
+    form = SearchForm(request.form)
 
-@app.route('/results', methods =['GET', 'POST'])
-def show_results():
-	return render_template('results.html', results=results)
+    if form.validate() and request.method == 'POST':
+        search_id = generate_search_results(form)
+        # return render_template('results.html', patients=patients, form = form, query = form.keyword.data)
+        return redirect(url_for('results', search_id=search_id))
 
-  
+    global recent_searches
+    sys.stderr.write("SEARCH ID IS %s \n" % search_id)
+    search_id = int(search_id)
+    sys.stderr.write("SEARCH ID IS NOW %s \n" % search_id)
+    search = recent_searches[search_id]
+    sys.stderr.write("SEARCH ISNOW %s \n" % search)
+    patients = search[0]
+    query = search[1]
+    form = search[2]
+    sys.stderr.write("SEARCH ID IS NOW %s \n" % search_id)
+    sid = search_id
 
-
+    return render_template('results.html', patients=patients, form=form, query=query, search_id=sid)
 
 def flash_errors(form):
         for field, errors in form.errors.items():

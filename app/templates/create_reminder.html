@@ -77,7 +77,7 @@
 	</form>
         </div>
 
-	<form action = "{{ url_for('patient_data', id=patient.id) }}"><input type="submit" value="Cancel"/></form>
+	<form action = "{{ url_for('patient_data', id=patient.id, search_id=search_id) }}"><input type="submit" value="Cancel"/></form>
 
 
 {% endblock %}
