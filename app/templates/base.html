@@ -1,14 +1,31 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %} Welcome to RecordRight {% endblock %}
-{% block content %}
+{% block head %}
+{{super()}}
+{% endblock %}
 
-        
-        {% block styles %}
-        	{{super()}}
-        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
-        {% endblock %}
+{% block scripts %}
+  {{ super() }}
+  <script src="{{url_for('static', filename='js/jquery-ui.js')}}"></script>
+	<script>
+	$(function() {
+		$( ".dtpick" ).datepicker();
+	});
+	</script>
+
+{% endblock %}
+
+{% block styles %}
+  {{super()}}
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/jquery-ui.css')}}">
+{% endblock %}
  
+{% block content %}
+        {{ super() }}
+        
+   
   
     <body>
         <div id="smallheader" class="jumbotron" padding-top="30px" padding-botton="30px">
@@ -48,4 +65,4 @@
 		
 
     </body>
-    {% endblock %}
+{% endblock %}
