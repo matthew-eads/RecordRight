@@ -15,14 +15,32 @@
 			<div class="col-md-8">
 				<!-- class mx-5 does not appear to be working -->
 				<div class="mx-5">
-					<table class="table table-striped">
-						<tr scope="row"> 
-							<th>Announcement</th>
+					<table class="table">
+						<tr>
+							<th><b>Announcement</b></th>
+							<th>Doctor</th>
+							<th>Severity</th>
 						</tr>
-						{% for an in announcements %}
-						<tr scope="row">
-							<th>{{an}}</th>
-						</tr>
+						{% for an in announcements: %}
+							{% if an.severity == "High": %}
+							<tr class = "danger">
+								<th>{{an.announcement}}</th>
+								<th>{{an.name}}</th>
+								<th>{{an.severity}}</th>
+							</tr>
+							{% elif an.severity == "Medium": %}
+							<tr class = "warning">
+								<th>{{an.announcement}}</th>
+								<th>{{an.name}}</th>
+								<th>{{an.severity}}</th>
+							</tr>
+							{% elif an.severity == "Low": %}
+							<tr class = "success">
+								<th>{{an.announcement}}</th>
+								<th>{{an.name}}</th>
+								<th>{{an.severity}}</th>
+							</tr>
+							{% endif %}
 						{% endfor %}
 					</table>
 				</div>
@@ -36,3 +54,14 @@
 	</div>
 
  {% endblock %}
+
+ <!-- <tr>
+        <td>Default</td>
+        <td>Defaultson</td>
+        <td>def@somemail.com</td>
+      </tr>      
+      <tr class="success">
+        <td>Success</td>
+        <td>Doe</td>
+        <td>john@example.com</td>
+      </tr> -->
