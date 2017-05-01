@@ -18,6 +18,12 @@ body {
         margin-bottom: 5px;
 }
 
+.table{
+	overflow-y: scroll;
+	height: 500px;
+	display: block;
+}
+
 .button {
 	float: right;
 	height = 50em;
