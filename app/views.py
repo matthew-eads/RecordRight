@@ -29,9 +29,7 @@ search_id = 0
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-    announcements = []
-    announcements.append("POLIO VACCINE")
-    announcements.append("FLU SHOT")
+    announcements = database.session.query(Announcement).all()
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
         search_id = generate_search_results(form)
@@ -312,14 +310,13 @@ def results(search_id):
 @app.route('/newannouncement', methods =['GET', 'POST'])
 def create_announcement():
         form = NewAnnouncementForm(request.form)
-        if request.method == 'GET':
-                today = datetime.date.today().strftime("%m/%d/%Y")
-                form.date.data = today
         if form.validate() and request.method == 'POST':
                 if form.announcement.data is not None and form.name.data is not None and form.severity.data is not None:
-                    new_announcement = Announcement(name = form.name.data, announcement = form.announcement.data, date = form.date.data, severity = form.severity.data)
+                    today = datetime.date.today().strftime("%m/%d/%Y")
+                    new_announcement = Announcement(name = form.name.data, announcement = form.announcement.data, date = today, severity = form.severity.data)
                     database.session.add(new_announcement)
                     database.session.commit()
+                    return redirect('/index')
         return render_template('new_announcement.html', form = form)
 
 

@@ -40,6 +40,5 @@ class RecurrentReminderForm(Form):
 
 class NewAnnouncementForm(Form):
         name = StringField('name', [validators.DataRequired()])
-        date = StringField('date', [validators.DataRequired()])
         announcement = StringField('announcement', [validators.DataRequired()])
         severity = RadioField('Severity', choices=[('Low','Low'),('Medium','Medium'),('High', 'High')])

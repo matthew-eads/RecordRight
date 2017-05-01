@@ -18,10 +18,14 @@
 					<table class="table table-striped">
 						<tr scope="row"> 
 							<th>Announcement</th>
+							<th>Doctor</th>
+							<th>Severity</th>
 						</tr>
 						{% for an in announcements %}
 						<tr scope="row">
-							<th>{{an}}</th>
+							<th>{{an.announcement}}</th>
+							<th>{{an.name}}</th>
+							<th>{{an.severity}}</th>
 						</tr>
 						{% endfor %}
 					</table>
