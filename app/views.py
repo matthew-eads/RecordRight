@@ -100,7 +100,7 @@ def patient_data(id, search_id):
 @app.route('/update_patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 def update_patient_data(id, search_id):
 	# this converts the patient variable, which is a string, into a dict
-	#import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     patients = session.query(Patient).filter(Patient.id == id).all()
     patient = patients[0]
     form = NewPatientForm(request.form)
@@ -112,38 +112,38 @@ def update_patient_data(id, search_id):
     	form.address.data = patient.address
     	today = datetime.date.today().strftime("%m/%d/%Y")
     	form.visit_date.data = today
-	if form.validate() and request.method == 'POST':
-		patient.name = form.name.data
-		patient.DOB = form.DOB.data
-		patient.hx = form.hx.data
-		patient.phone_number = form.phone_number.data
-		patient.address = form.address.data
+    if form.validate() and request.method == 'POST':
+        patient.name = form.name.data
+        patient.DOB = form.DOB.data
+        patient.hx = form.hx.data
+        patient.phone_number = form.phone_number.data
+        patient.address = form.address.data
         if form.visit_notes.data is not None:
-        	print("adding visit notes")
-        	if patient.past_visit_notes is None:
-        		patient.past_visit_notes = {}
-        	patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
-        	#TODO remove this... this is just for fixing date inconsistencies
-        	for datestr in patient.past_visit_notes.keys():
-        		try:
-        			datetime.datetime.strptime(datestr, "%m/%d/%Y")
-        		except ValueError:
-        			date = datetime.datetime.strptime(datestr, "%Y-%m-%d")
-        			patient.past_visit_notes[date.strftime("%m/%d/%Y")] = patient.past_visit_notes[datestr]
-        			del patient.past_visit_notes[datestr]
+            print("adding visit notes")
+            if patient.past_visit_notes is None:
+                patient.past_visit_notes = {}
+            patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
+            #TODO remove this... this is just for fixing date inconsistencies
+            for datestr in patient.past_visit_notes.keys():
+                try:
+                    datetime.datetime.strptime(datestr, "%m/%d/%Y")
+                except ValueError:
+                    date = datetime.datetime.strptime(datestr, "%Y-%m-%d")
+                    patient.past_visit_notes[date.strftime("%m/%d/%Y")] = patient.past_visit_notes[datestr]
+                    del patient.past_visit_notes[datestr]
         else:
-        	print("not adding visit notes")
+            print("not adding visit notes")
         database.session.commit()
         request_session = FuturesSession()
         date = datetime.datetime.strptime(form.DOB.data, "%m/%d/%Y")
         data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), "birth_month":str(date.month), "birth_day":str(date.day), "phone_number":patient.phone_number, "address":"None"}
         if form.visit_notes.data is not None:
-        	data["notes"] = form.visit_notes.data
+            data["notes"] = form.visit_notes.data
         request_session.post("{}/update".format(RRSMS_URL), params=data, auth=HTTPBasicAuth("admin", "pickabetterpassword"))
         flash("Successfully updated patient {}".format(form.name.data))
         return redirect(url_for('patient_data', id=id, search_id=search_id))
     elif request.method == 'POST':
-    	flash_errors(form)
+        flash_errors(form)
     return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)
 
 
