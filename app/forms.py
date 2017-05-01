@@ -1,5 +1,5 @@
 # forms.py
-from wtforms import Form, BooleanField, StringField, validators, IntegerField, HiddenField, SelectField
+from wtforms import Form, BooleanField, StringField, validators, IntegerField, HiddenField, SelectField, RadioField
 
 class LoginForm(Form):
 	username = StringField('username', [validators.DataRequired()])
@@ -37,3 +37,9 @@ class RecurrentReminderForm(Form):
         end_hour = StringField('end_hour')
         end_after = StringField('end_after')
         end_on = StringField('end_on')
+
+class NewAnnouncementForm(Form):
+        name = StringField('name', [validators.DataRequired()])
+        date = StringField('date', [validators.DataRequired()])
+        announcement = StringField('announcement', [validators.DataRequired()])
+        severity = RadioField('Severity', choices=[('Low','Low'),('Medium','Medium'),('High', 'High')])

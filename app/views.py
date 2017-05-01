@@ -3,7 +3,7 @@ from app import app
 from flask import render_template, redirect, request, flash, url_for
 from .forms import *
 from wtforms import Form, validators
-from app.models import Patient
+from app.models import Patient, Announcement
 from database import session
 import database
 import logging
@@ -294,25 +294,34 @@ def create_reminder(id, search_id):
 @app.route('/results/<path:search_id>', methods=['GET', 'POST'])
 def results(search_id):
     form = SearchForm(request.form)
-
     if form.validate() and request.method == 'POST':
         search_id = generate_search_results(form)
         # return render_template('results.html', patients=patients, form = form, query = form.keyword.data)
         return redirect(url_for('results', search_id=search_id))
 
     global recent_searches
-    sys.stderr.write("SEARCH ID IS %s \n" % search_id)
     search_id = int(search_id)
-    sys.stderr.write("SEARCH ID IS NOW %s \n" % search_id)
     search = recent_searches[search_id]
-    sys.stderr.write("SEARCH ISNOW %s \n" % search)
+
     patients = search[0]
     query = search[1]
     form = search[2]
-    sys.stderr.write("SEARCH ID IS NOW %s \n" % search_id)
-    sid = search_id
 
-    return render_template('results.html', patients=patients, form=form, query=query, search_id=sid)
+    return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id)
+
+@app.route('/newannouncement', methods =['GET', 'POST'])
+def create_announcement():
+        form = NewAnnouncementForm(request.form)
+        if request.method == 'GET':
+                today = datetime.date.today().strftime("%m/%d/%Y")
+                form.date.data = today
+        if form.validate() and request.method == 'POST':
+                if form.announcement.data is not None and form.name.data is not None and form.severity.data is not None:
+                    new_announcement = Announcement(name = form.name.data, announcement = form.announcement.data, date = form.date.data, severity = form.severity.data)
+                    database.session.add(new_announcement)
+                    database.session.commit()
+        return render_template('new_announcement.html', form = form)
+
 
 def flash_errors(form):
         for field, errors in form.errors.items():

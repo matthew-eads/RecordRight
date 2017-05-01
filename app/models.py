@@ -34,6 +34,17 @@ class Patient(Base):
 	def __repr__(self):
 		return '<Patient %r %r %r %r %r %r>'%(self.name, self.DOB, self.hx, self.phone_number, self.address, self.past_visit_notes)
 
+class Announcement(Base):
+	__tablename__ = 'announcements'
+	id = Column(Integer, primary_key = True)
+	date = Column(String, index=True)
+	name = Column(String, index=True)
+	announcement = Column(String, index=True)
+	severity = Column(String, index=True)
+
+	def __repr__(self):
+		return '<Announcement %r %r %r>'%(self.name, self.announcement, self.severity)
+
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}
 
