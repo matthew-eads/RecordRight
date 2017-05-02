@@ -5,6 +5,7 @@ from wtforms import HiddenField, SelectField, RadioField
 
 class LoginForm(Form):
 	username = StringField('username', [validators.DataRequired()])
+        password = StringField('password', [validators.DataRequired()])
 	is_remembered = BooleanField('is_remembered', default=False)
 
 class NewPatientForm(Form):

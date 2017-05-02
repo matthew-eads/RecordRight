@@ -3,7 +3,7 @@ from app import app
 from flask import render_template, redirect, request, flash, url_for
 from .forms import *
 from wtforms import Form, validators
-from app.models import Patient, Announcement, Reminder
+from app.models import Patient, Announcement, Reminder, User
 from database import session
 import database
 import logging
@@ -24,8 +24,27 @@ RRSMS_URL = "http://record-right.herokuapp.com"
 recent_searches = {}
 search_id = 0
 
-
 @app.route('/', methods = ['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm(request.form)
+    sys.stderr.write("FORM IS validated? %s \n" % form.validate())
+    if form.validate() and request.method == 'POST':
+        # flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
+        given_username = form.username.data
+        given_password = form.password.data
+        users =  session.query(User).filter(User.username == given_username).all()
+        if users:
+            if users[0].password == given_password:
+                sys.stderr.write("users are %r\n" % users)
+                return redirect('/index')
+            else:
+                flash("That password is not valid. Please try again.")
+        else:
+            flash("That username is not valid. Please try again.")
+
+    return render_template('login.html', title="SignIn", form=form)
+
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
 	announcements = reversed(database.session.query(Announcement).all())
@@ -143,16 +162,6 @@ def update_patient_data(id, search_id):
     elif request.method == 'POST':
         flash_errors(form)
     return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-	form = LoginForm(request.form)
-	sys.stderr.write("FORM IS validated? %s \n" % form.validate())
-	if form.validate() and request.method == 'POST':
-		# flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
-		return redirect('/index')
-	return render_template('login.html', title="SignIn", form=form)
 
 @app.route('/new_patient', methods=['GET', 'POST'])
 def create_patient():
