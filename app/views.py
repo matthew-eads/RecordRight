@@ -131,6 +131,7 @@ def update_patient_data(id, search_id):
         patient.hx = form.hx.data
         patient.phone_number = form.phone_number.data
         patient.address = form.address.data
+        patient.patient_note = form.patient_note.data
 
         if form.visit_notes.data is not None and form.visit_notes.data != "":
             if patient.past_visit_notes is None:
@@ -167,7 +168,7 @@ def create_patient():
 			notes[form.visit_date.data] = form.visit_notes.data
 		new_patient = Patient(name = form.name.data, DOB = clean_date(form.DOB.data), 
 									  hx = form.hx.data, phone_number=form.phone_number.data,
-									  past_visit_notes = notes, address=form.address.data)
+									  past_visit_notes = notes, address=form.address.data, patient_note = form.patient_note.data)
 		database.session.add(new_patient)
 		database.session.commit()
 		if form.phone_number.data is not None:

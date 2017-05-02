@@ -24,6 +24,16 @@ body {
 	display: block;
 }
 
+.table2{
+	overflow-y: scroll;
+	height: 200px;
+	width: 500px;
+	display: block;
+	float:right;
+	clear: right;
+	background-color: #f2f2f2;
+}
+
 .button {
 	float: right;
 	height = 50em;

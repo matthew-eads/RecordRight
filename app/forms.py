@@ -8,13 +8,14 @@ class LoginForm(Form):
 	is_remembered = BooleanField('is_remembered', default=False)
 
 class NewPatientForm(Form):
-	name = StringField('name', [validators.DataRequired()])
-	DOB = StringField('DOB', [validators.DataRequired()])
-	hx = StringField('hx', [])
-	phone_number = StringField('phone_number', [])
-        address = StringField('address', [])
-        visit_date = StringField("visit_date", [])
-        visit_notes = StringField("visit_notes", [])
+    name = StringField('name', [validators.DataRequired()])
+    DOB = StringField('DOB', [validators.DataRequired()])
+    hx = StringField('hx', [])
+    phone_number = StringField('phone_number', [])
+    address = StringField('address', [])
+    visit_date = StringField("visit_date", [])
+    visit_notes = StringField("visit_notes", [])
+    patient_note = StringField("patient_note", [])
 
 class SearchForm(Form):
 	#name = StringField('name')
