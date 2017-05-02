@@ -35,22 +35,24 @@ function decide() {
 } 
 
   </script>
+  <div class="container">
   <div class="row">
-      <div class="col-sm-1 padding-2 narrow">
+      <div class="col-md-1 padding-2 narrow">
         <p><a class="btn btn-default padding-22" href= "{{ url_for('update_patient_data', id=patient[0].id, search_id=search_id)}}">Edit</a></p>
       </div>
-      <div class="col-sm-1 padding-2 narrow">
+      <div class="col-md-3 padding-2 narrow">
         <p><a class="btn btn-default" href= "{{ url_for('new_visit', id=patient[0].id, search_id=search_id)}}">New Visit</a></p>
       </div>
-      <div class="col-sm-1 padding-2 narrow">
+      <div class="col-md-1 padding-2 narrow">
         <p><a class="btn btn-default" href= "{{ url_for('create_reminder', id=patient[0].id, search_id=search_id)}}">Create Reminder</a></p>
       </div>
-      <div class="col-sm-1 padding-2 narrow"></div>
-      <div class="col-sm-1 padding-2 narrow">
+      <div class="col-md-1 padding-2 narrow"></div>
+      <div class="col-md-1 padding-2 narrow">
        <p><a class="btn btn-default" href="{{ url_for('delete_patient', id=patient[0].id)}}" onclick="return confirm('Are you sure you want to delete this patient and all of their associated data?');">Delete Patient</a></p>
       </div>
-      <div class="col-md-8">
+      <div class="col-md-5">
       </div>
+  </div>
   </div>
   <table class="table2">
     <tr class = "success"> 
