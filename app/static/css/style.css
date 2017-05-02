@@ -37,6 +37,9 @@ body {
 	clear: right;
 	background-color: #f2f2f2;
 }
+.push {
+	margin: 50px;
+}
 
 .button {
 	float: right;
