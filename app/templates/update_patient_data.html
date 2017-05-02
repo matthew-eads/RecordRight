@@ -3,7 +3,7 @@
 
     <script type="text/javascript">
       function validate() {
-        var date_regex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/ ;
+        var date_regex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)?\d{2}$/ ;
         if(!(date_regex.test(document.updatepatient.DOB.value)))
         {
           alert("Please enter a valid date of birth (ex: 12/25/1990)");
@@ -28,13 +28,12 @@
   		<p> History: {{form.hx}} </p>
   		<p> Phone Number: {{form.phone_number}} </p>
   		<p> Address: {{form.address}} </p>
-        <p> Visit Date (mm/dd/yyyy): {{form.visit_date}} </p>
+        <p> Visit Date (mm/dd/yyyy): {{form.visit_date(class="dtpicker")}} </p>
         <p> Visit Notes: {{form.visit_notes}} </p>
-		<p><input type="submit" value="Submit"></p>
+		<p><input class="btn btn-default" type="submit" value="Submit"></p>
 	  </form>
 
-
-	  <form action = "{{ url_for('patient_data', id=patient.id) }}"><input type="submit" value="Cancel"/></form>
+     <a href="{{ url_for('patient_data', id=patient.id, search_id=search_id) }}" class="btn btn-default">Cancel</a>
   </div>
 </div>
 

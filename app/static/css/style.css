@@ -18,6 +18,12 @@ body {
         margin-bottom: 5px;
 }
 
+.table{
+	overflow-y: scroll;
+	height: 500px;
+	display: block;
+}
+
 .button {
 	float: right;
 	height = 50em;
@@ -47,3 +53,23 @@ body {
 	margin-right: 25%;
 }
 
+.padding-2 {
+	padding: 2px;
+}
+
+.padding-3 {
+	padding: 3px;
+}
+
+.padding-22 {
+	padding-right: 22px;
+	padding-left: 22px;
+}
+
+.move-left {
+	margin-left: -30px;
+}
+
+.narrow {
+	width:6%;
+}
