@@ -93,6 +93,29 @@ def patient_data(id, search_id):
 
 	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes, search_id=search_id)
 
+# if new=True, send to /add, else send to /update
+def send_update_to_sms_server(patient, new=False):
+    request_session = FuturesSession()
+    date = datetime.datetime.strptime(patient.DOB, "%m/%d/%Y")
+    # only send over the most recent visit note
+    latest_date = max(patient.past_visit_notes.keys(), key=lambda date: time.strptime(date, "%m/%d/%Y"))
+    latest_note = patient.past_visit_notes[latest_date]
+    data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), 
+            "birth_month":str(date.month), "birth_day":str(date.day), 
+            "phone_number":patient.phone_number, "address":patient.address, "notes":latest_note}
+    path = "add" if new else "update"
+    request_session.post("{}/{}".format(RRSMS_URL, path), params=data, auth=HTTPBasicAuth("admin", "pickabetterpassword"))
+
+                        
+def prepopulate_form(form, patient):
+    form.name.data = patient.name
+    form.DOB.data = patient.DOB
+    form.hx.data = patient.hx
+    form.phone_number.data = patient.phone_number
+    form.address.data = patient.address
+    today = datetime.date.today().strftime("%m/%d/%Y")
+    form.visit_date.data = today
+
 
 @app.route('/update_patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 def update_patient_data(id, search_id):
@@ -102,41 +125,21 @@ def update_patient_data(id, search_id):
     patient = patients[0]
     form = NewPatientForm(request.form)
     if request.method == "GET":
-    	form.name.data = patient.name
-    	form.DOB.data = patient.DOB
-    	form.hx.data = patient.hx
-    	form.phone_number.data = patient.phone_number
-    	form.address.data = patient.address
-    	today = datetime.date.today().strftime("%m/%d/%Y")
-    	form.visit_date.data = today
+        prepopulate_form(form, patient)
     if form.validate() and request.method == 'POST':
         patient.name = form.name.data
         patient.DOB = clean_date(form.DOB.data)
         patient.hx = form.hx.data
         patient.phone_number = form.phone_number.data
         patient.address = form.address.data
+
         if form.visit_notes.data is not None and form.visit_notes.data != "":
-            print("adding visit notes")
             if patient.past_visit_notes is None:
                 patient.past_visit_notes = {}
             patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
-            #TODO remove this... this is just for fixing date inconsistencies
-            for datestr in patient.past_visit_notes.keys():
-                try:
-                    datetime.datetime.strptime(datestr, "%m/%d/%Y")
-                except ValueError:
-                    date = datetime.datetime.strptime(datestr, "%Y-%m-%d")
-                    patient.past_visit_notes[date.strftime("%m/%d/%Y")] = patient.past_visit_notes[datestr]
-                    del patient.past_visit_notes[datestr]
-        else:
-            print("not adding visit notes")
+
         database.session.commit()
-        request_session = FuturesSession()
-        date = datetime.datetime.strptime(clean_date(form.DOB.data), "%m/%d/%Y")
-        data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), "birth_month":str(date.month), "birth_day":str(date.day), "phone_number":patient.phone_number, "address":"None"}
-        if form.visit_notes.data is not None:
-            data["notes"] = form.visit_notes.data
-        request_session.post("{}/update".format(RRSMS_URL), params=data, auth=HTTPBasicAuth("admin", "pickabetterpassword"))
+        send_update_to_sms_server(patient)
         flash("Successfully updated patient {}".format(form.name.data))
         return redirect(url_for('patient_data', id=id, search_id=search_id))
     elif request.method == 'POST':
@@ -169,16 +172,7 @@ def create_patient():
 		database.session.add(new_patient)
 		database.session.commit()
 		if form.phone_number.data is not None:
-			request_session = FuturesSession()
-                        
-                        
-                        date = datetime.datetime.strptime(clean_date(form.DOB.data), "%m/%d/%Y")
-			data = {"name":form.name.data, "birth_year":str(date.year), "birth_month":str(date.month),
-				"birth_day":str(date.day), "phone_number":form.phone_number.data,
-				"address":form.address.data, "notes":form.visit_notes.data, "rr_id":str(new_patient.id)}
-
-			request_session.post("{}/add".format(RRSMS_URL), params=data, 
-					     auth=HTTPBasicAuth("admin", "pickabetterpassword"))
+                    send_update_to_sms_server(new_patient, new=True)
                 flash("Successfully added patient {}".format(form.name.data))
 		return redirect('/index')
         elif request.method == 'POST':
