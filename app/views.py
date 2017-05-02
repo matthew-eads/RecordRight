@@ -179,6 +179,15 @@ def create_patient():
                 flash_errors(form)
 	return render_template('new_patient.html', title="CreatePatient", form=form)
 
+
+@app.route('/delete_patient/<path:id>')
+def delete_patient(id):
+	patient = session.query(Patient).filter(Patient.id == id).all()
+	name = patient[0].name
+	session.query(Patient).filter(Patient.id == id).delete()
+	database.session.commit()
+	flash("Successfully deleted patient {}".format(name))
+
 def clean_date(date):
     (month, day, year) = date.split('/')
     if len(month) == 1:
