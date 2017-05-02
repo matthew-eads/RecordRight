@@ -98,8 +98,11 @@ def send_update_to_sms_server(patient, new=False):
     request_session = FuturesSession()
     date = datetime.datetime.strptime(patient.DOB, "%m/%d/%Y")
     # only send over the most recent visit note
-    latest_date = max(patient.past_visit_notes.keys(), key=lambda date: time.strptime(date, "%m/%d/%Y"))
-    latest_note = patient.past_visit_notes[latest_date]
+    try:
+        latest_date = max(patient.past_visit_notes.keys(), key=lambda date: time.strptime(date, "%m/%d/%Y"))
+        latest_note = patient.past_visit_notes[latest_date]
+    except: # might fail if no visit notes
+        latest_note = ""
     data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), 
             "birth_month":str(date.month), "birth_day":str(date.day), 
             "phone_number":patient.phone_number, "address":patient.address, "notes":latest_note}
