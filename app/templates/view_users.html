@@ -1,0 +1,43 @@
+{% if is_admin %}
+	{% extends "admin_base.html" %}
+{% else %}
+	{% extends "base.html" %}
+{% endif %}
+
+{% block app_content %}
+
+	<div class="container">
+		<div class="row bottom-buffer">
+			<div class="col-md-10"></div>
+			<div class="col-md-2">
+			</div>
+		</div>
+	</div>
+	<h1>SYSTEM USERS</h1>
+	<div class="container">
+		<div class="row vertical-buffers">
+			<div class="col-md-8">
+				<!-- class mx-5 does not appear to be working -->
+				<div class="mx-5">
+					<table class="table table-striped">
+						<tr scope="row"> 
+							<th>Username</th>
+							<th>Administrator?</th>
+						</tr>
+						{% for user in users|sort(attribute='username') %}
+						<tr scope="row">
+							<th><p>{{user.username}}</p></th>
+							{% if user.is_admin %}
+							<th><p>Yes</p></th>
+							{% else %}
+							<th><p>No</p></th>
+							{% endif %}
+						</tr>
+						{% endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+ {% endblock %}

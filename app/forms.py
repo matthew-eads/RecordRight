@@ -22,6 +22,11 @@ class SearchForm(Form):
 	#DOB = StringField('DOB')
 	keyword = StringField('keyword')
 
+class NewUserForm(Form):
+        username= StringField('username', [validators.DataRequired(), validators.Length(3,8,"Please enter a value between 3 and 8 characters")])
+        password = StringField('password', [validators.DataRequired(), validators.Length(3,8,"Please enter a value between 3 and 8 characters")])
+        is_admin= BooleanField('is_admin', default=False)
+
 class CommonReminderForm(Form):
         what = HiddenField('what', [validators.DataRequired()])
         schedule = SelectField('Reminder Schedule', 

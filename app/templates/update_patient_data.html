@@ -1,4 +1,9 @@
-{% extends "base.html" %}
+{% if is_admin %}
+  {% extends "admin_base.html" %}
+{% else %}
+  {% extends "base.html" %}
+{% endif %}
+
 {% block app_content %}
 
     <script type="text/javascript">

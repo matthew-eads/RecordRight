@@ -1,4 +1,9 @@
-{% extends "base.html" %}
+{% if is_admin %}
+	{% extends "admin_base.html" %}
+{% else %}
+	{% extends "base.html" %}
+{% endif %}
+
 {% block app_content %}
 	<!--<a href = "{{ url_for('create_patient') }}" class = "button">Create Patient</a>-->
 	<div class="container">
