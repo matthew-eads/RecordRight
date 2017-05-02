@@ -14,7 +14,10 @@
   
 		<h2>{{patient[0].DOB}}</h2>
   </div>
+  <script>
 
+
+  </script>
   <div class="row">
       <div class="col-sm-1 padding-2 narrow">
         <p><a class="btn btn-default padding-22" href= "{{ url_for('update_patient_data', id=patient[0].id, search_id=search_id)}}">Edit</a></p>
@@ -24,29 +27,7 @@
       </div>
       <div class="col-sm-1 padding-2 narrow"></div>
       <div class="col-sm-1 padding-2 narrow">
-        <p><input type="button" id="delete_btn" class="btn btn-default" onclick="decide();">Delete Patient</input></p>
-                <script>
-
-  function decide() {
-    console.log("am I even printing anyting?\n")
-document.getElementById("delete_btn").addEventListener("click", handler);
-var go_back=false;
-// handler function
-function handler(e) {
-  // remove this handler
-  e.target.removeEventListener(e.type, arguments.callee);
-
-  alert("You'll only see this once!");
-  go_back = true;
-}
-if(go_back==true) {
-  return false;
-}
-window.location.replace({{url_for('delete_patient', id=patient[0].id, is_cancelled=is_cancelled)}});
-
-};
-
-  </script>
+        <p><a class="btn btn-default" href= "{{ url_for('delete_patient', id=patient[0].id, is_cancelled=is_cancelled)}}" onclick="function decide(event) {var alerted = localStorage.getItem('alerted') || ''; if (alerted != 'yes') {alert('My alert.'); localStorage.setItem('alerted','yes'); event.PreventDefault();} }; ">Delete Patient</a></p>
       </div>
       <div class="col-md-8">
       </div>

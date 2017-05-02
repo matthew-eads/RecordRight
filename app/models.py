@@ -45,7 +45,18 @@ class Announcement(Base):
 
 	def __repr__(self):
 		return '<Announcement %r %r %r>'%(self.name, self.announcement, self.severity)
-
+class Reminder(Base):
+	__tablename__ = 'reminders'
+	id = Column(Integer, primary_key = True) 
+	# 1 for single reminder, 2 for recurring reminder
+	reminder_type = Column(Integer)
+	patient_id = Column(Integer)
+	message = Column(String)
+	schedule = Column(String)
+	end_on = Column(String)
+	end_after = Column(Integer)
+	cron_command = Column(String)
+	at_id = Column(Integer)
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}
 

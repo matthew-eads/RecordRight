@@ -23,7 +23,11 @@ class SearchForm(Form):
 
 class CommonReminderForm(Form):
         what = HiddenField('what', [validators.DataRequired()])
-        schedule = SelectField('Reminder Schedule', choices=[('0 6 * * *', "Once daily at 6am"), ('0 6,12,18 * * *', "Thrice daily at 6am, noon, and 6pm")])
+        schedule = SelectField('Reminder Schedule', 
+                               choices=[('0 6 * * *', "Once daily at 6am"), 
+                                        ('0 6,12,18 * * *', "Thrice daily at 6am, noon, and 6pm"),
+                                        ('0 6,18 * * *', "Twice a day at 6am and 6pm"),
+                                        ('* * * * *', "DEBUG ONLY: EVERY MINUTE")])
         end_after = StringField('end_after')
         end_on = StringField('end_on')
 

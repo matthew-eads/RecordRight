@@ -2,34 +2,6 @@
 
 {% block scripts %}
 {{ super() }}
-{% endblock %}
-{% block app_content %}
-
-
-	<form action="" method="post" name="messageform">
-	  <p>Message to send: <input type="text" name="message" onblur="document.recurrentreminder.what.value = this.value; document.reminder.what.value = this.value; document.commonreminderform.what.value = this.value"/> </p>
-	</form>
-
-
-
-        <h3>Pick a common reminder schedule</h3>
-        <form action="" name="commonreminderform" method="post">
-          <input type="hidden" name="form-name" value="commonreminderform">
-          {{common_reminder_form.what}}
-          {{common_reminder_form.schedule}}
-          <p> End after {{recurrent_form.end_after}} occurrences 
-            OR on {{recurrent_form.end_on(class="dtpicker")}} </p>
-
-          <input class="btn btn-default" type="submit" value="Submit"/>
-        </form>
-        <h4>OR</h4>
-        <p></p>
-        <h3>Specify a reminder schedule</h3>
-        <form name="whichreminder">
-            <input type="radio" name="reminders"  value="singleform" checked>Single Reminder<br>
-            <input type="radio" name="reminders"  value="recurrentform">Recurring Reminder
-        </form>
-
         <script>
           var rad = document.whichreminder.reminders;
           var prev = null;
@@ -53,33 +25,76 @@
             };
           }
         </script>
+{% endblock %}
+{% block app_content %}
 
+
+	<form action="" method="post" name="messageform">
+	  <p>Message to send: <input type="text" name="message" onblur="document.recurrentreminder.what.value = this.value; document.reminder.what.value = this.value; document.commonreminderform.what.value = this.value"/> </p>
+	</form>
+
+
+
+        <h3>Pick a common reminder schedule</h3>
+        <form action="" name="commonreminderform" method="post">
+          <input type="hidden" name="form-name" value="commonreminderform">
+          {{common_reminder_form.what}}
+          {{common_reminder_form.schedule}}
+          <p> End after {{recurrent_form.end_after}} occurrences 
+            OR on {{recurrent_form.end_on(class="dtpick")}} </p>
+
+          <input class="btn btn-default" type="submit" value="Submit"/>
+        </form>
+        <h4>OR</h4>
+        <p></p>
+        <h3>Specify a reminder schedule</h3>
+        <p>A single reminder will send the message exactly once on the specified date
+          a recurring reminder will be sent multiple times according to the specified schedule</p>
+        <form name="whichreminder">
+            <input type="radio" name="reminders"  value="singleform" checked>Single Reminder<br>
+            <input type="radio" name="reminders"  value="recurrentform">Recurring Reminder
+        </form>
 
         <div id="singleform">
 	<form action="" method="post" name="reminder">
       <input type="hidden" name="form-name" value="singleform">
 	  {{single_form.what}}
-    <!-- <div class="row"> -->
-
   		<p> Date to send (MM/DD/YY): {{single_form.when(class="dtpick")}} </p>
-    <!-- </div> -->
 		<p><input class="btn btn-default" type="submit" value="Submit"></p>
 	</form>
 
         </div>
-          <!-- <i class="glyphicon glyphicon-info-sign" rel="tooltip" title="Key active" id="blah"></i> -->
         <div id="recurrentform" style="display:none">
 	<form action="" method="post" name="recurrentreminder">
       <input type="hidden" name="form-name" value="recurrentreminderform">
                  {{recurrent_form.what}}
 		<p> Every {{recurrent_form.days}} day(s) </p>
-                <p> Every {{recurrent_form.hours}} hour(s)
+                <p> Every {{recurrent_form.hours}} hour(s)(optional:
                    between {{recurrent_form.start_hour}} and 
-                   {{recurrent_form.end_hour}} </p>
+                   {{recurrent_form.end_hour}}) </p>
                 <p> End after {{recurrent_form.end_after}} occurrences 
                   OR on {{recurrent_form.end_on}} </p>
 		<p><input class="btn btn-default" type="submit" value="Submit"></p>
 	</form>
+        <p>
+          The days field specifies which days to send the reminder; '1' will send it every day,
+          '2' will be every other day, and so on. 
+        </p>
+        <p>
+          The hours fields specify at what time of day to run the reminder. Every '1' hour will
+          send it each hour, '2' hours will send it every other hour, etc. The between &lt;start hour&gt;
+          and &lt;end hour&gt; fields are optional, but if specified will constrain when messages are sent.
+          For example 'every 2 hours from 6 to 18' will send a message every other hour, starting at 6am, ending
+          at 6pm.
+        </p>
+        <p>
+          So, to send a message at 6am and 6pm every other day, you would specify 'every 2 days, every 12 hours, between 6 and 18'.
+        </p>
+        <p>
+          Lastly, you must specify when to stop sending the reminder - you can specify a specific date to stop,
+          or the total number of messages to send. You can specify both, and the messages will stop based on 
+          whichever happens first.
+        </p>
         </div>
   <a href="{{ url_for('patient_data', id=patient.id, search_id=search_id) }}" class="btn btn-default">Cancel</a>
 
