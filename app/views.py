@@ -90,7 +90,6 @@ def patient_data(id, search_id):
                 except:
                         sorted_notes = list(visit_notes.iteritems())
                         
-
 	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes, search_id=search_id)
 
 # if new=True, send to /add, else send to /update
@@ -239,7 +238,6 @@ def create_reminder(id, search_id):
                         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
                                                common_reminder_form=common_reminder_form, search_id=search_id)
         
-
                 if is_common_selected:
                         schedule = f.schedule.data
                 else:
@@ -249,7 +247,7 @@ def create_reminder(id, search_id):
                 # ok so for the end_after x occurrences, not quite sure what the best way is
                 # best i got right now is just shove a counter in the file
                 run_script = ""
-                if f.end_after.data is not None:
+                if f.end_after.data is not None and f.end_after.data != '':
                         counter_name = "{}/.scheduling/{}-{}.count".format(basedir, to_number, str(time.time()))
                         script_name = "{}/.scheduling/{}-{}.bash".format(basedir, to_number, str(time.time()))
                         script = """
@@ -284,12 +282,10 @@ def create_reminder(id, search_id):
                 proc.stdin.write(command)
                 proc.stdin.close()
                 print(proc.stdout.read())
-                #import pdb; pdb.set_trace()
-                #TODO: make sure we actually ~~STOP~~ sending messages based on either end_after or end_on
+
                 if f.end_on.data is not None and f.end_on.data != '':
                         proc = subprocess.Popen(["at", f.end_on.data], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                         proc.stdin.write("crontab -l\n")
-                        print("grepping for \"{}\"".format(subcommand))
                         proc.stdin.write("crontab -l | grep -Fv \"{}\" | crontab - ".format(subcommand))
                         proc.stdin.close()
                         print("Output: {}".format(proc.stdout.read()))
