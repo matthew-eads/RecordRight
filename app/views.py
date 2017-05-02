@@ -101,7 +101,7 @@ def create_user():
             session.commit()
             return redirect('index')
     else:
-        flash("Limit entries to 8 characters or fewer")
+        flash("Limit entries to 3-8 characters")
     return render_template('create_user.html', form=form, is_admin=is_admin)
 
 def generate_search_results(form):
