@@ -3,7 +3,7 @@ from app import app
 from flask import render_template, redirect, request, flash, url_for
 from .forms import *
 from wtforms import Form, validators
-from app.models import Patient, Announcement
+from app.models import Patient, Announcement, Reminder
 from database import session
 import database
 import logging
@@ -11,7 +11,7 @@ import datetime, time
 from config import basedir 
 import subprocess 
 import sqlite3
-
+import re
 from requests_futures.sessions import FuturesSession
 from requests.auth import HTTPBasicAuth
 
@@ -213,7 +213,7 @@ def create_reminder(id, search_id):
         single_form = ReminderForm(request.form)
         recurrent_form = RecurrentReminderForm(request.form)
         common_reminder_form = CommonReminderForm(request.form)
-        if request.method == 'POST':
+        if request.method == 'GET':
                 recurrent_form.start_hour.data = "00"
                 recurrent_form.end_hour.data = "23"
         if single_form.validate() and request.method == 'POST':
@@ -222,10 +222,19 @@ def create_reminder(id, search_id):
                 to_number = patient.phone_number
                 date = single_form.when.data
                 command = "{}/RRSMS/send_reminder.bash -n {} -m \"{}\"".format(basedir, to_number, body)
-                proc = subprocess.Popen(['at', date], stdin=subprocess.PIPE)
+                proc = subprocess.Popen(['at', date], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 proc.stdin.write(command)
                 proc.stdin.close()
+		out = proc.stdout.read()
                 flash("Successfully set reminder for {}".format(patient.name))
+		reminder = Reminder()
+		reminder.reminder_type = 1
+		reminder.patient_id = id
+		reminder.schedule = date
+		reminder.message = body
+		reminder.at_id = int(re.search('job ([0-9]+)', out).groups()[0])
+		database.session.add(reminder)
+		database.session.commit()
                 return redirect(url_for('patient_data', id=id, search_id=search_id))
         
         if (recurrent_form.validate() or common_reminder_form.validate()) and request.method == 'POST':
@@ -240,6 +249,10 @@ def create_reminder(id, search_id):
                         flash("Error: please specify either the 'end after' field or the 'end on' field")
                         return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
                                                common_reminder_form=common_reminder_form, search_id=search_id)
+		reminder = Reminder()
+		reminder.reminder_type = 2
+		reminder.message = body
+		reminder.patient_id = id
         
                 if is_common_selected:
                         schedule = f.schedule.data
@@ -248,11 +261,12 @@ def create_reminder(id, search_id):
                         end_hour = "23" if f.end_hour.data is None or f.end_hour.data == '' else f.end_hour.data 
                         schedule = "0 {}-{}/{} */{} * *".format(
                                 start_hour, end_hour, f.hours.data, f.days.data)
-                
+		reminder.schedule = schedule
                 # ok so for the end_after x occurrences, not quite sure what the best way is
                 # best i got right now is just shove a counter in the file
                 run_script = ""
                 if f.end_after.data is not None and f.end_after.data != '':
+		        reminder.end_after = int(f.end_after.data)
                         counter_name = "{}/.scheduling/{}-{}.count".format(basedir, to_number, str(time.time()))
                         script_name = "{}/.scheduling/{}-{}.bash".format(basedir, to_number, str(time.time()))
                         script = """
@@ -280,7 +294,7 @@ def create_reminder(id, search_id):
 
                 subcommand = "{} {}/RRSMS/send_reminder.bash -n {} -m \\\"{}\\\"{}".format(
                         schedule, basedir, to_number, body, run_script)
-
+		reminder.cron_command = subcommand
                 command = "(crontab -l; echo \"{}\") | crontab - ".format(subcommand)
                 print("command is: {}".format(command))
                 proc = subprocess.Popen(["bash"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -289,12 +303,14 @@ def create_reminder(id, search_id):
                 print(proc.stdout.read())
 
                 if f.end_on.data is not None and f.end_on.data != '':
+		        reminder.end_on = f.end_on.data
                         proc = subprocess.Popen(["at", f.end_on.data], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                         proc.stdin.write("crontab -l\n")
                         proc.stdin.write("crontab -l | grep -Fv \"{}\" | crontab - ".format(subcommand))
                         proc.stdin.close()
                         print("Output: {}".format(proc.stdout.read()))
-                        
+		database.session.add(reminder)
+		database.session.commit()
                 flash("Successfully set reminder for {}".format(patient.name))
                 return redirect(url_for('patient_data', id=id, search_id=search_id))
 
