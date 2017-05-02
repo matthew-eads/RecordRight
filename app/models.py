@@ -19,7 +19,7 @@ class User(Base):
 	username = Column(String(8), index=True)
 	password = Column(String(8))
 	def __repr__(self):
-		return '<User %r>'%(self.username)
+		return '<User %r password: %r>'%(self.username, self.password)
 
 class Patient(Base):
 	__tablename__ = 'patients'
