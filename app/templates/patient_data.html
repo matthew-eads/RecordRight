@@ -40,6 +40,9 @@ function decide() {
         <p><a class="btn btn-default padding-22" href= "{{ url_for('update_patient_data', id=patient[0].id, search_id=search_id)}}">Edit</a></p>
       </div>
       <div class="col-sm-1 padding-2 narrow">
+        <p><a class="btn btn-default" href= "{{ url_for('new_visit', id=patient[0].id, search_id=search_id)}}">New Visit</a></p>
+      </div>
+      <div class="col-sm-1 padding-2 narrow">
         <p><a class="btn btn-default" href= "{{ url_for('create_reminder', id=patient[0].id, search_id=search_id)}}">Create Reminder</a></p>
       </div>
       <div class="col-sm-1 padding-2 narrow"></div>
@@ -49,11 +52,26 @@ function decide() {
       <div class="col-md-8">
       </div>
   </div>
+  <table class="table2">
+    <tr class = "success"> 
+        <th>Visit Date</th>
+        <th>Doctor</th>
+        <th>Note</th>
+    </tr>
+    {% for date, info in visit_notes %}
+        <tr scope="active">
+            <th>{{date}}: </th>
+            <th>{{info[0]}}: </th>
+            <th>{{info[1]}}</th>
+        </tr>
+    {% endfor %}
+</table>
 		<h3> Patient Information </h3>
 		<p> History: {{patient[0].hx}}</p>
 		<p> Phone Number: {{patient[0].phone_number}}</p>
 		<p> Address: {{patient[0].address}}</p>
-        <p> Past visit notes:
+        <p> Patient Note: {{patient[0].patient_note}}</p>
+<!--         <p> Past visit notes:
           {% if patient[0].past_visit_notes is none or patient[0].past_visit_notes|length == 0 %}
             <p>No past visits</p>
           {% else %}
@@ -61,7 +79,7 @@ function decide() {
             <p>{{date}} : {{visit}}</p>
             {% endfor %}
           {% endif %}
-        </p>
+        </p> -->
 <!-- 	</div> -->
 
 <br><br><br>

@@ -18,10 +18,24 @@ body {
         margin-bottom: 5px;
 }
 
+.tab{
+	margin-left: 40px;
+}
+
 .table{
 	overflow-y: scroll;
 	height: 500px;
 	display: block;
+}
+
+.table2{
+	overflow-y: scroll;
+	height: 200px;
+	width: 600px;
+	display: block;
+	float:right;
+	clear: right;
+	background-color: #f2f2f2;
 }
 
 .button {

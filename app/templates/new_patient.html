@@ -32,10 +32,12 @@
 		<p> History: {{form.hx}} </p>
 		<p> Phone Number: {{form.phone_number}} </p>
 		<p> Address: {{form.address}} </p>
-        <p> Visit Notes:
-          <p> Visit Date: {{form.visit_date(class="dtpicker")}} </p>
-          <p> Notes: {{form.visit_notes}} </p>
-        </p>
+    <p> Visit Notes:
+      <p class = "tab"> Visit Date: {{form.visit_date(class="dtpicker")}} </p>
+      <p class = "tab"> Doctor: {{form.visit_doctor}} </p>
+      <p class = "tab"> Notes: {{form.visit_notes}} </p>
+      <p class = "tab"> Patient Note: {{form.patient_note}}</p>
+    </p>
 
 		<p><input class="btn btn-default" type="submit" value="Submit"></p>
 	</form>
