@@ -38,7 +38,7 @@ def login_required(f):
     return decorated_function
 
 @app.route('/', methods = ['GET', 'POST'])
-@app.route('/login', methods=['GET', 'POST'])
+#@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     sys.stderr.write("FORM IS validated? %s \n" % form.validate())
@@ -67,7 +67,7 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/index', methods = ['GET', 'POST'])
-@login_required
+#@login_required
 def index():
     announcements = reversed(database.session.query(Announcement).all())
     form = SearchForm(request.form)
@@ -112,7 +112,7 @@ def generate_search_results(form):
 
 
 @app.route('/patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def patient_data(id, search_id):
     # this converts the patient variable, which is a string, into a dict
     patient = session.query(Patient).filter(Patient.id == id).all()
@@ -158,7 +158,7 @@ def prepopulate_form(form, patient):
     form.visit_date.data = today
 
 @app.route('/update_patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def update_patient_data(id, search_id):
     # this converts the patient variable, which is a string, into a dict
     #import pdb; pdb.set_trace()
@@ -194,13 +194,14 @@ def update_patient_data(id, search_id):
 
 
 @app.route('/new_visit/<path:id>/<path:search_id>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def new_visit(id, search_id):
     patients = session.query(Patient).filter(Patient.id == id).all()
     patient = patients[0]
     form = NewVisitForm(request.form)
     if request.method == "GET":
-        prepopulate_form(form, patient)
+        today = datetime.date.today().strftime("%m/%d/%Y")
+        form.visit_date.data = today
     if form.validate() and request.method == 'POST':
         patient.patient_note = form.patient_note.data
 
@@ -214,10 +215,11 @@ def new_visit(id, search_id):
 
         database.session.commit()
         send_update_to_sms_server(patient)
-        flash("Successfully updated patient {}".format(form.name.data))
         return redirect(url_for('patient_data', id=id, search_id=search_id))
-    elif request.method == 'POST':
-        flash_errors(form)
+    #     flash("Successfully updated patient {}".format(form.name.data))
+    #     return redirect(url_for('patient_data', id=id, search_id=search_id))
+    # elif request.method == 'POST':
+    #     flash_errors(form)
     return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)    
 
 
@@ -231,7 +233,7 @@ def new_visit(id, search_id):
 #     return render_template('login.html', title="SignIn", form=form)
 
 @app.route('/new_patient', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def create_patient():
     form = NewPatientForm(request.form)
     if request.method == 'GET':
@@ -259,7 +261,7 @@ def create_patient():
 
 
 @app.route('/delete_patient/<path:id>')
-@login_required
+#@login_required
 def delete_patient(id):
     patient = session.query(Patient).filter(Patient.id == id).all()
     name = patient[0].name
@@ -281,7 +283,7 @@ def clean_date(date):
 
 
 @app.route('/create_reminder/<path:id>/<path:search_id>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def create_reminder(id, search_id):
     patient = session.query(Patient).filter(Patient.id == id).first()
     if patient.phone_number is None:
@@ -384,7 +386,7 @@ def create_reminder(id, search_id):
                            common_reminder_form=common_reminder_form, search_id=search_id)
         
 @app.route('/results/<path:search_id>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def results(search_id):
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
@@ -403,7 +405,7 @@ def results(search_id):
     return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id)
 
 @app.route('/newannouncement', methods =['GET', 'POST'])
-@login_required
+#@login_required
 def create_announcement():
         form = NewAnnouncementForm(request.form)
         if form.validate() and request.method == 'POST':

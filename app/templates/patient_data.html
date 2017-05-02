@@ -35,6 +35,9 @@ function decide() {
         <p><a class="btn btn-default padding-22" href= "{{ url_for('update_patient_data', id=patient[0].id, search_id=search_id)}}">Edit</a></p>
       </div>
       <div class="col-sm-1 padding-2 narrow">
+        <p><a class="btn btn-default" href= "{{ url_for('new_visit', id=patient[0].id, search_id=search_id)}}">New Visit</a></p>
+      </div>
+      <div class="col-sm-1 padding-2 narrow">
         <p><a class="btn btn-default" href= "{{ url_for('create_reminder', id=patient[0].id, search_id=search_id)}}">Create Reminder</a></p>
       </div>
       <div class="col-sm-1 padding-2 narrow"></div>

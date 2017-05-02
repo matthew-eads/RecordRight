@@ -15,8 +15,8 @@ class NewPatientForm(Form):
     phone_number = StringField('phone_number', [])
     address = StringField('address', [])
     visit_date = StringField("visit_date", [])
-    visit_notes = StringField("visit_notes", [])
     visit_doctor = StringField("visit_doctor", [])
+    visit_notes = StringField("visit_notes", [])
     patient_note = StringField("patient_note", [])
 
 class NewVisitForm(Form):
