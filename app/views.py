@@ -48,8 +48,8 @@ def login():
         given_username = form.username.data
         given_password = form.password.data
         users =  session.query(User).filter(User.username == given_username).all()
-        if users or True:
-            if True or users[0].password == given_password:
+        if users:
+            if users[0].password == given_password:
                 sys.stderr.write("users are %r\n" % users)
                 global curr_user
                 curr_user = given_username
@@ -443,8 +443,7 @@ def results(search_id):
     patients = search[0]
     query = search[1]
     form = search[2]
-
-	return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id, is_admin=is_admin)
+    return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id, is_admin=is_admin)
 
 @app.route('/newannouncement', methods =['GET', 'POST'])
 @login_required
