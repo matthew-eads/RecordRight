@@ -48,17 +48,18 @@ def login():
 		given_username = form.username.data
 		given_password = form.password.data
 		users =	 session.query(User).filter(User.username == given_username).all()
-		if users or True:
-			if True or users[0].password == given_password:
+		if users:
+			if users[0].password == given_password:
 				sys.stderr.write("users are %r\n" % users)
 				global curr_user
 				curr_user = given_username
+				global is_admin
+				is_admin = users[0].is_admin
 				return redirect('/index')
 			else:
 				flash("That password is not valid. Please try again.")
 		else:
 			flash("That username is not valid. Please try again.")
-
 	return render_template('login.html', title="SignIn", form=form, is_admin=is_admin)
 
 @app.route('/logout')
@@ -216,7 +217,6 @@ def update_patient_data(id, search_id):
 @app.route('/new_visit/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 @login_required
 def new_visit(id, search_id):
-<<<<<<< HEAD
 	patients = session.query(Patient).filter(Patient.id == id).all()
 	patient = patients[0]
 	form = NewVisitForm(request.form)
