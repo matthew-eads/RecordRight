@@ -27,8 +27,6 @@
 
 	</form>
 
-	{# <form class= "btn btn-default" action =" " onsubmit="redirect(url_for('index')"><input type="submit" value="Cancel"/></form> #}
-
-	<a href="{{ url_for('index') }}" class="btn btn-default">Cancel</a>
+	<a href="{{ url_for('patient_data', id=patient.id, search_id=search_id) }}" class="btn btn-default">Cancel</a>
 
 {% endblock %}

@@ -124,8 +124,8 @@ def patient_data(id, search_id):
 		sorted_notes = None
 	else:
 		try:
-			sorted_notes = sorted(visit_notes.iteritems(), 
-								  key=lambda datestr: time.strptime(datestr[0], "%m/%d/%Y"))
+			sorted_notes = reversed(sorted(visit_notes.iteritems(), 
+								  key=lambda datestr: time.strptime(datestr[0], "%m/%d/%Y")))
 		except:
 			sorted_notes = list(visit_notes.iteritems())
                         
@@ -203,7 +203,8 @@ def new_visit(id, search_id):
         today = datetime.date.today().strftime("%m/%d/%Y")
         form.visit_date.data = today
     if form.validate() and request.method == 'POST':
-        patient.patient_note = form.patient_note.data
+        if form.patient_note.data != "":
+            patient.patient_note = form.patient_note.data
 
         if form.visit_notes.data is not None and form.visit_notes.data != "":
             if patient.past_visit_notes is None:
