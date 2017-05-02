@@ -250,7 +250,10 @@ def create_patient():
 	if form.validate() and request.method == 'POST':
 		notes = {}
 		if form.visit_notes.data is not None and form.visit_notes.data != "":
-			notes[form.visit_date.data] = form.visit_notes.data
+			notes_info = []
+			notes_info.append(form.visit_doctor.data)
+			notes_info.append(form.visit_notes.data)
+			notes[form.visit_date.data] = notes_info
 		new_patient = Patient(name = form.name.data, DOB = clean_date(form.DOB.data), 
 							  hx = form.hx.data, phone_number=form.phone_number.data,
 							  past_visit_notes = notes, address=form.address.data, patient_note=form.patient_note.data)
