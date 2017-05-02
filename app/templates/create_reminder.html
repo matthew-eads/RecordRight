@@ -69,9 +69,9 @@
       <input type="hidden" name="form-name" value="recurrentreminderform">
                  {{recurrent_form.what}}
 		<p> Every {{recurrent_form.days}} day(s) </p>
-                <p> Every {{recurrent_form.hours}} hour(s)
+                <p> Every {{recurrent_form.hours}} hour(s)(optional:
                    between {{recurrent_form.start_hour}} and 
-                   {{recurrent_form.end_hour}} </p>
+                   {{recurrent_form.end_hour}}) </p>
                 <p> End after {{recurrent_form.end_after}} occurrences 
                   OR on {{recurrent_form.end_on}} </p>
 		<p><input class="btn btn-default" type="submit" value="Submit"></p>
@@ -81,7 +81,19 @@
           '2' will be every other day, and so on. 
         </p>
         <p>
-          The hours fields specify at what time of day to run the reminder. 
+          The hours fields specify at what time of day to run the reminder. Every '1' hour will
+          send it each hour, '2' hours will send it every other hour, etc. The between &lt;start hour&gt;
+          and &lt;end hour&gt; fields are optional, but if specified will constrain when messages are sent.
+          For example 'every 2 hours from 6 to 18' will send a message every other hour, starting at 6am, ending
+          at 6pm.
+        </p>
+        <p>
+          So, to send a message at 6am and 6pm every other day, you would specify 'every 2 days, every 12 hours, between 6 and 18'.
+        </p>
+        <p>
+          Lastly, you must specify when to stop sending the reminder - you can specify a specific date to stop,
+          or the total number of messages to send. You can specify both, and the messages will stop based on 
+          whichever happens first.
         </p>
         </div>
   <a href="{{ url_for('patient_data', id=patient.id, search_id=search_id) }}" class="btn btn-default">Cancel</a>

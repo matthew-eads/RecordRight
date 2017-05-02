@@ -213,6 +213,9 @@ def create_reminder(id, search_id):
         single_form = ReminderForm(request.form)
         recurrent_form = RecurrentReminderForm(request.form)
         common_reminder_form = CommonReminderForm(request.form)
+        if request.method == 'POST':
+                recurrent_form.start_hour.data = "00"
+                recurrent_form.end_hour.data = "23"
         if single_form.validate() and request.method == 'POST':
                 # schedule reminder
                 body = single_form.what.data
@@ -241,8 +244,10 @@ def create_reminder(id, search_id):
                 if is_common_selected:
                         schedule = f.schedule.data
                 else:
+                        start_hour = "0" if f.start_hour.data is None or f.start_hour.data == '' else f.start_hour.data 
+                        end_hour = "23" if f.end_hour.data is None or f.end_hour.data == '' else f.end_hour.data 
                         schedule = "0 {}-{}/{} */{} * *".format(
-                                f.start_hour.data, f.end_hour.data, f.hours.data, f.days.data)
+                                start_hour, end_hour, f.hours.data, f.days.data)
                 
                 # ok so for the end_after x occurrences, not quite sure what the best way is
                 # best i got right now is just shove a counter in the file
