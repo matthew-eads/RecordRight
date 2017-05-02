@@ -72,7 +72,6 @@ def generate_search_results(form):
 
 @app.route('/patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 def patient_data(id, search_id):
-	is_cancelled=False
 	# this converts the patient variable, which is a string, into a dict
 	patient = session.query(Patient).filter(Patient.id == id).all()
         # i hate everything
@@ -179,11 +178,8 @@ def create_patient():
 	return render_template('new_patient.html', title="CreatePatient", form=form)
 
 
-@app.route('/delete_patient/<path:id>/<path:is_cancelled>')
-def delete_patient(id, is_cancelled):
-	if is_cancelled is True:
-		sys.stderr.write("IS CANCELLED\n")
-		return redirect(url_for('index'))
+@app.route('/delete_patient/<path:id>')
+def delete_patient(id):
 	patient = session.query(Patient).filter(Patient.id == id).all()
 	name = patient[0].name
 	session.query(Patient).filter(Patient.id == id).delete()
