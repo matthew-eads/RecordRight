@@ -14,6 +14,13 @@
 			</div>
 		</div>
 	</div>
+				<div class="mx-5" style="margin-top: 50px;">
+				<form action="" method="post" name="search">
+					<h2> Search: {{form.keyword}} </h2>
+					<p><input class="btn btn-default" type="submit" value="Submit" style="font-size:22px"></p>
+				</form>
+			</div>
+
 	<h1> HOSPITAL ANNOUNCEMENTS </h1>
 	<div class="container">
 		<div class="row vertical-buffers">
@@ -49,12 +56,6 @@
 						{% endfor %}
 					</table>
 				</div>
-			<div class="mx-5" style="margin-top: 50px;">
-				<form action="" method="post" name="search">
-					<h2> Search: {{form.keyword}} </h2>
-					<p><input class="btn btn-default" type="submit" value="Submit" style="font-size:22px"></p>
-				</form>
-			</div>
 		</div>
 	</div>
 
