@@ -1,5 +1,5 @@
 # forms.py
-from wtforms import Form, BooleanField, StringField, validators, IntegerField
+from wtforms import Form, BooleanField, StringField, validators, IntegerField, TextAreaField
 from wtforms import HiddenField, SelectField, RadioField, PasswordField
 
 
@@ -8,6 +8,8 @@ class LoginForm(Form):
 	password = PasswordField('password', [validators.DataRequired()])
 	is_remembered = BooleanField('is_remembered', default=False)
 
+
+
 class NewPatientForm(Form):
     name = StringField('name', [validators.DataRequired()])
     DOB = StringField('DOB', [validators.DataRequired()])
@@ -15,14 +17,14 @@ class NewPatientForm(Form):
     phone_number = StringField('phone_number', [])
     address = StringField('address', [])
     visit_date = StringField("visit_date", [])
-    visit_notes = StringField("visit_notes", [])
     visit_doctor = StringField("visit_doctor", [])
+    visit_notes = TextAreaField("visit_notes", render_kw={"rows": 3, "cols": 40})
     patient_note = StringField("patient_note", [])
 
 class NewVisitForm(Form):
     visit_date = StringField('visit_date', [])
     visit_doctor = StringField('visit_doctor', [])
-    visit_notes = StringField("visit_notes", [])
+    visit_notes = TextAreaField("visit_notes", render_kw={"rows": 3, "cols": 40})
     patient_note = StringField("patient_note", [])
 
 
@@ -30,6 +32,11 @@ class SearchForm(Form):
 	#name = StringField('name')
 	#DOB = StringField('DOB')
 	keyword = StringField('keyword')
+
+class NewUserForm(Form):
+        username= StringField('username', [validators.DataRequired(), validators.Length(3,8,"Please enter a value between 3 and 8 characters")])
+        password = StringField('password', [validators.DataRequired(), validators.Length(3,8,"Please enter a value between 3 and 8 characters")])
+        is_admin= BooleanField('is_admin', default=False)
 
 class CommonReminderForm(Form):
 	what = HiddenField('what', [validators.DataRequired()])

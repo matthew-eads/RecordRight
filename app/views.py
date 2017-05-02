@@ -25,6 +25,7 @@ RRSMS_URL = "http://record-right.herokuapp.com"
 recent_searches = {}
 search_id = 0
 curr_user = None
+is_admin = False
 
 
 # defines a decorator for other functions -- requires a user to be logged in
@@ -58,7 +59,7 @@ def login():
 		else:
 			flash("That username is not valid. Please try again.")
 
-	return render_template('login.html', title="SignIn", form=form)
+	return render_template('login.html', title="SignIn", form=form, is_admin=is_admin)
 
 @app.route('/logout')
 def logout():
@@ -74,7 +75,32 @@ def index():
 	if form.validate() and request.method == 'POST':
 		search_id = generate_search_results(form)
 		return redirect(url_for('results', search_id=search_id))
-	return render_template('index.html', announcements=announcements, form = form)
+	return render_template('index.html', announcements=announcements, form = form, is_admin=is_admin)
+
+@app.route('/view_users')
+@login_required
+def view_users():
+    users = session.query(User).all()
+    return render_template('view_users.html', users=users, is_admin=is_admin)
+
+@app.route('/create_user', methods = ['GET', 'POST'])
+@login_required
+def create_user():
+    form = NewUserForm(request.form)
+    sys.stderr.write("FORM IS validated? %s \n" % form.validate())
+    if form.validate() and request.method == 'POST':
+        flash("Successfully created user {}".format(form.username.data))
+        users =  session.query(User).filter(User.username == form.username.data).all()
+        if users:
+            flash("Username {} already exists; please choose a different username".format(form.username.data))
+        else:
+            new_user = User(username=form.username.data, password=form.password.data, is_admin=form.is_admin.data)
+            session.add(new_user)
+            session.commit()
+            return redirect('index')
+    else:
+        flash("Limit entries to 8 characters or fewer")
+    return render_template('create_user.html', form=form, is_admin=is_admin)
 
 def generate_search_results(form):
 	def dict_factory(cursor, row):
@@ -124,12 +150,11 @@ def patient_data(id, search_id):
 		sorted_notes = None
 	else:
 		try:
-			sorted_notes = sorted(visit_notes.iteritems(), 
-								  key=lambda datestr: time.strptime(datestr[0], "%m/%d/%Y"))
+			sorted_notes = reversed(sorted(visit_notes.iteritems(), 
+								  key=lambda datestr: time.strptime(datestr[0], "%m/%d/%Y")))
 		except:
 			sorted_notes = list(visit_notes.iteritems())
-						
-	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes, search_id=search_id)
+	return render_template('patient_data.html', patient=patient, visit_notes=sorted_notes, search_id=search_id, is_admin=is_admin)
 
 # if new=True, send to /add, else send to /update
 def send_update_to_sms_server(patient, new=False):
@@ -185,12 +210,13 @@ def update_patient_data(id, search_id):
 		return redirect(url_for('patient_data', id=id, search_id=search_id))
 	elif request.method == 'POST':
 		flash_errors(form)
-	return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)
+	return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id, is_admin=is_admin)
 
 
 @app.route('/new_visit/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 @login_required
 def new_visit(id, search_id):
+<<<<<<< HEAD
 	patients = session.query(Patient).filter(Patient.id == id).all()
 	patient = patients[0]
 	form = NewVisitForm(request.form)
@@ -213,7 +239,7 @@ def new_visit(id, search_id):
 		return redirect(url_for('patient_data', id=id, search_id=search_id))
 	elif request.method == 'POST':
 		flash_errors(form)
-	return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)	   
+	return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id, is_admin=is_admin)	   
 
 
 # @app.route('/login', methods=['GET', 'POST'])
@@ -247,7 +273,7 @@ def create_patient():
 		return redirect('/index')
 	elif request.method == 'POST':
 		flash_errors(form)
-	return render_template('new_patient.html', title="CreatePatient", form=form)
+	return render_template('new_patient.html', title="CreatePatient", form=form, is_admin=is_admin)
 
 
 @app.route('/delete_patient/<path:id>')
@@ -291,7 +317,7 @@ def handle_single_form(single_form, patient):
 	database.session.add(reminder)
 	database.session.commit()
 
-def handle_recurrent_form(recurrent_form, common_reminder_form, patient):
+def handle_recurrent_form(recurrent_form, common_reminder_form, patient, search_id):
 	print("Creating recurrent reminder")
 	is_common_selected = common_reminder_form.validate()
 	f = common_reminder_form if is_common_selected else recurrent_form
@@ -302,7 +328,7 @@ def handle_recurrent_form(recurrent_form, common_reminder_form, patient):
 		f.end_on.data is None or f.end_after.data == ""):
 		flash("Error: please specify either the 'end after' field or the 'end on' field")
 		return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
-							   common_reminder_form=common_reminder_form, search_id=search_id)
+							   common_reminder_form=common_reminder_form, search_id=search_id, is_admin=is_admin)
 	reminder = Reminder()
 	reminder.reminder_type = 2
 	reminder.message = body
@@ -366,6 +392,7 @@ def handle_recurrent_form(recurrent_form, common_reminder_form, patient):
 	database.session.add(reminder)
 	database.session.commit()
 	flash("Successfully set reminder for {}".format(patient.name))
+	return redirect(url_for('patient_data', id=patient.id, search_id=search_id))
 
 @app.route('/create_reminder/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 @login_required
@@ -387,8 +414,8 @@ def create_reminder(id, search_id):
 		return redirect(url_for('patient_data', id=id, search_id=search_id))
 		
 	if (recurrent_form.validate() or common_reminder_form.validate()) and request.method == 'POST':
-		handle_recurrent_form(recurrent_form, common_reminder_form, patient)
-		return redirect(url_for('patient_data', id=id, search_id=search_id))
+		return handle_recurrent_form(recurrent_form, common_reminder_form, patient, search_id)
+
 
 	if request.method == 'POST':
 		form_name = request.form['form-name']
@@ -400,8 +427,8 @@ def create_reminder(id, search_id):
 			flash_errors(common_reminder_form)
 		
 	return render_template("create_reminder.html", patient=patient, single_form=single_form, recurrent_form=recurrent_form,
-						   common_reminder_form=common_reminder_form, search_id=search_id)
-		
+						   common_reminder_form=common_reminder_form, search_id=search_id, is_admin=is_admin)
+
 @app.route('/results/<path:search_id>', methods=['GET', 'POST'])
 @login_required
 def results(search_id):
@@ -419,7 +446,7 @@ def results(search_id):
 	query = search[1]
 	form = search[2]
 
-	return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id)
+	return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id, is_admin=is_admin)
 
 @app.route('/newannouncement', methods =['GET', 'POST'])
 @login_required
@@ -432,7 +459,7 @@ def create_announcement():
 			database.session.add(new_announcement)
 			database.session.commit()
 			return redirect('/index')
-	return render_template('new_announcement.html', form = form)
+	return render_template('new_announcement.html', form = form, is_admin=is_admin)
 
 def flash_errors(form):
 	for field, errors in form.errors.items():

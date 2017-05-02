@@ -1,4 +1,9 @@
-{% extends "base.html" %}
+{% if is_admin %}
+	{% extends "admin_base.html" %}
+{% else %}
+	{% extends "base.html" %}
+{% endif %}
+
 {% block app_content %}
 	<!--<a href = "{{ url_for('create_patient') }}" class = "button">Create Patient</a>-->
 	<div class="container">
@@ -20,7 +25,7 @@
 							<th>Patient</th>
 							<th>DOB</th>
 						</tr>
-						{% for patient in patients %}
+						{% for patient in patients|sort(attribute='name') %}
 						<tr scope="row">
 							<th><p><a href= "{{ url_for('patient_data', id=patient.id, search_id=search_id)}}"> {{patient.name}}</a></p></th>
 							<th>{{patient.DOB}}</th>

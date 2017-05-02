@@ -1,18 +1,32 @@
 {% extends "base.html" %}
 {% block app_content %}
+
+<script type="text/javascript">
+      function validate() {
+        var date_regex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|1\d|2\d|3[01])\/(19|20)?\d{2}$/ ;
+        if(!(date_regex.test(document.updatepatient.visit_date.value)))
+        {
+          alert("Please enter a valid visit date (ex: 12/25/1990)");
+          document.updatepatient.visit_date.focus();
+          return false;
+        }
+        return true;
+      }
+    </script>
+
+
 	<h1> New Visit </h1>	
 
 	<form action="" method="post" name="newvisit" onsubmit="return(validate());">
 		<p> Visit Date: {{form.visit_date(class="dtpicker")}} </p>
 		<p> Doctor's Name: {{form.visit_doctor}} </p>
           	<p> Visit Notes: {{form.visit_notes}} </p>
+          	<p> Patient Note: {{form.patient_note}} </p>
 
         	<p><input class="btn btn-default" type="submit" value="Submit"></p>
 
 	</form>
 
-	{# <form class= "btn btn-default" action =" " onsubmit="redirect(url_for('index')"><input type="submit" value="Cancel"/></form> #}
-
-	<a href="{{ url_for('index') }}" class="btn btn-default">Cancel</a>
+	<a href="{{ url_for('patient_data', id=patient.id, search_id=search_id) }}" class="btn btn-default">Cancel</a>
 
 {% endblock %}
