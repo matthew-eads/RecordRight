@@ -15,7 +15,19 @@
 		<h2>{{patient[0].DOB}}</h2>
   </div>
   <script>
+function decide() {
+  console.log("IN DECIDE()\n")
+  var alerted = localStorage.getItem('alerted') || ''; 
+  if (alerted != 'yes') {
+    alert('My alert.');
+  }
+  else {
+    return true;
+  }
+  localStorage.setItem('alerted','yes'); 
+  return false;
 
+} 
 
   </script>
   <div class="row">
@@ -27,7 +39,7 @@
       </div>
       <div class="col-sm-1 padding-2 narrow"></div>
       <div class="col-sm-1 padding-2 narrow">
-        <p><a class="btn btn-default" href= "{{ url_for('delete_patient', id=patient[0].id, is_cancelled=is_cancelled)}}" onclick="function decide(event) {var alerted = localStorage.getItem('alerted') || ''; if (alerted != 'yes') {alert('My alert.'); localStorage.setItem('alerted','yes'); event.PreventDefault();} }; ">Delete Patient</a></p>
+       <p><a class="btn btn-default" href="{{ url_for('delete_patient', id=patient[0].id)}}" onclick="return confirm('Are you sure you want to delete this patient and all of their associated data?');">Delete Patient</a></p>
       </div>
       <div class="col-md-8">
       </div>
@@ -35,12 +47,14 @@
   <table class="table2">
     <tr class = "success"> 
         <th>Visit Date</th>
-        <th>Visit Note</th>
+        <th>Doctor</th>
+        <th>Note</th>
     </tr>
-    {% for date, visit in visit_notes %}
+    {% for date, info in visit_notes %}
         <tr scope="active">
             <th>{{date}}: </th>
-            <th>{{visit}}</th>
+            <th>{{info[0]}}: </th>
+            <th>{{info[1]}}</th>
         </tr>
     {% endfor %}
 </table>

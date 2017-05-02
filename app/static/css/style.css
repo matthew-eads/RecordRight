@@ -27,7 +27,7 @@ body {
 .table2{
 	overflow-y: scroll;
 	height: 200px;
-	width: 500px;
+	width: 600px;
 	display: block;
 	float:right;
 	clear: right;
