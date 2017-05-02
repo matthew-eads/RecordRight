@@ -27,7 +27,8 @@ search_id = 0
 curr_user = None
 
 
-
+# defines a decorator for other functions -- requires a user to be logged in
+# NOTE: we must add the decorator @login_required to all routes
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -58,6 +59,12 @@ def login():
             flash("That username is not valid. Please try again.")
 
     return render_template('login.html', title="SignIn", form=form)
+
+@app.route('/logout')
+def logout():
+    global curr_user
+    curr_user = None
+    return redirect(url_for('login'))
 
 @app.route('/index', methods = ['GET', 'POST'])
 @login_required

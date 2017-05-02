@@ -18,8 +18,9 @@ class User(Base):
 	id = Column(Integer, primary_key=True)
 	username = Column(String(8), index=True)
 	password = Column(String(8))
+	is_admin = Column(Boolean, default=True)
 	def __repr__(self):
-		return '<User %r password: %r>'%(self.username, self.password)
+		return '<User %r>'%(self.username)
 
 class Patient(Base):
 	__tablename__ = 'patients'

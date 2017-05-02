@@ -5,7 +5,6 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from sqlalchemy import *
-# from flask_login import *
 #import whooshalchemy
 #from app.models import Patient
 
