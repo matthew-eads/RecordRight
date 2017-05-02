@@ -190,6 +190,7 @@ def delete_patient(id):
 	session.query(Patient).filter(Patient.id == id).delete()
 	database.session.commit()
 	flash("Successfully deleted patient {}".format(name))
+        return redirect('/index')
 
 def clean_date(date):
     (month, day, year) = date.split('/')
