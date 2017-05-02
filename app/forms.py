@@ -1,5 +1,5 @@
 # forms.py
-from wtforms import Form, BooleanField, StringField, validators, IntegerField
+from wtforms import Form, BooleanField, StringField, validators, IntegerField, TextAreaField
 from wtforms import HiddenField, SelectField, RadioField, PasswordField
 
 
@@ -7,6 +7,8 @@ class LoginForm(Form):
 	username = StringField('username', [validators.DataRequired()])
 	password = PasswordField('password', [validators.DataRequired()])
 	is_remembered = BooleanField('is_remembered', default=False)
+
+
 
 class NewPatientForm(Form):
     name = StringField('name', [validators.DataRequired()])
@@ -16,13 +18,13 @@ class NewPatientForm(Form):
     address = StringField('address', [])
     visit_date = StringField("visit_date", [])
     visit_doctor = StringField("visit_doctor", [])
-    visit_notes = StringField("visit_notes", [])
+    visit_notes = TextAreaField("visit_notes", render_kw={"rows": 3, "cols": 40})
     patient_note = StringField("patient_note", [])
 
 class NewVisitForm(Form):
     visit_date = StringField('visit_date', [])
     visit_doctor = StringField('visit_doctor', [])
-    visit_notes = StringField("visit_notes", [])
+    visit_notes = TextAreaField("visit_notes", render_kw={"rows": 3, "cols": 40})
     patient_note = StringField("patient_note", [])
 
 

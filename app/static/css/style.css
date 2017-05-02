@@ -18,6 +18,10 @@ body {
         margin-bottom: 5px;
 }
 
+.tab{
+	margin-left: 40px;
+}
+
 .table{
 	overflow-y: scroll;
 	height: 500px;

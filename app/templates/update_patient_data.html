@@ -10,12 +10,6 @@
           document.updatepatient.DOB.focus();
           return false;
         }
-        if(!(date_regex.test(document.updatepatient.visit_date.value)))
-        {
-          alert("Please enter a valid visit date (ex: 12/25/1990)");
-          document.updatepatient.visit_date.focus();
-          return false;
-        }
         return true;
       }
     </script>
@@ -28,10 +22,6 @@
   		<p> History: {{form.hx}} </p>
   		<p> Phone Number: {{form.phone_number}} </p>
   		<p> Address: {{form.address}} </p>
-        <p> Visit Date (mm/dd/yyyy): {{form.visit_date(class="dtpicker")}} </p>
-        <p> Visit Notes: {{form.visit_notes}} </p>
-        <p> Doctor: {{form.visit_doctor}}
-      <p> Patient Note: {{form.patient_note}} </p>
 		<p><input class="btn btn-default" type="submit" value="Submit"></p>
 	  </form>
 

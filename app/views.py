@@ -220,7 +220,7 @@ def new_visit(id, search_id):
     #     return redirect(url_for('patient_data', id=id, search_id=search_id))
     # elif request.method == 'POST':
     #     flash_errors(form)
-    return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)    
+    return render_template('new_visit.html', patient=patient, form=form, search_id=search_id)    
 
 
 # @app.route('/login', methods=['GET', 'POST'])
