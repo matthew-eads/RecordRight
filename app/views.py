@@ -3,7 +3,7 @@ from app import app
 from flask import render_template, redirect, request, flash, url_for
 from .forms import *
 from wtforms import Form, validators
-from app.models import Patient, Announcement, Reminder
+from app.models import Patient, Announcement, Reminder, User
 from database import session
 import database
 import logging
@@ -14,6 +14,7 @@ import sqlite3
 import re
 from requests_futures.sessions import FuturesSession
 from requests.auth import HTTPBasicAuth
+from functools import wraps
 
 import sys
 
@@ -23,10 +24,50 @@ RRSMS_URL = "http://record-right.herokuapp.com"
 # used for page navigation (like going back to search results from Patient Data page)
 recent_searches = {}
 search_id = 0
+curr_user = None
 
+
+# defines a decorator for other functions -- requires a user to be logged in
+# NOTE: we must add the decorator @login_required to all routes
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if curr_user is None:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/', methods = ['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm(request.form)
+    sys.stderr.write("FORM IS validated? %s \n" % form.validate())
+    if form.validate() and request.method == 'POST':
+        # flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
+        given_username = form.username.data
+        given_password = form.password.data
+        users =  session.query(User).filter(User.username == given_username).all()
+        if users:
+            if users[0].password == given_password:
+                sys.stderr.write("users are %r\n" % users)
+                global curr_user
+                curr_user = given_username
+                return redirect('/index')
+            else:
+                flash("That password is not valid. Please try again.")
+        else:
+            flash("That username is not valid. Please try again.")
+
+    return render_template('login.html', title="SignIn", form=form)
+
+@app.route('/logout')
+def logout():
+    global curr_user
+    curr_user = None
+    return redirect(url_for('login'))
+
 @app.route('/index', methods = ['GET', 'POST'])
+#@login_required
 def index():
     announcements = reversed(database.session.query(Announcement).all())
     form = SearchForm(request.form)
@@ -71,6 +112,7 @@ def generate_search_results(form):
 
 
 @app.route('/patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+#@login_required
 def patient_data(id, search_id):
     # this converts the patient variable, which is a string, into a dict
     patient = session.query(Patient).filter(Patient.id == id).all()
@@ -116,6 +158,7 @@ def prepopulate_form(form, patient):
     form.visit_date.data = today
 
 @app.route('/update_patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+#@login_required
 def update_patient_data(id, search_id):
     # this converts the patient variable, which is a string, into a dict
     #import pdb; pdb.set_trace()
@@ -149,7 +192,9 @@ def update_patient_data(id, search_id):
         flash_errors(form)
     return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)
 
+
 @app.route('/new_visit/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+#@login_required
 def new_visit(id, search_id):
     patients = session.query(Patient).filter(Patient.id == id).all()
     patient = patients[0]
@@ -176,16 +221,17 @@ def new_visit(id, search_id):
     return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id)    
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm(request.form)
-    sys.stderr.write("FORM IS validated? %s \n" % form.validate())
-    if form.validate() and request.method == 'POST':
-        # flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
-        return redirect('/index')
-    return render_template('login.html', title="SignIn", form=form)
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     form = LoginForm(request.form)
+#     sys.stderr.write("FORM IS validated? %s \n" % form.validate())
+#     if form.validate() and request.method == 'POST':
+#         # flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
+#         return redirect('/index')
+#     return render_template('login.html', title="SignIn", form=form)
 
 @app.route('/new_patient', methods=['GET', 'POST'])
+#@login_required
 def create_patient():
     form = NewPatientForm(request.form)
     if request.method == 'GET':
@@ -213,6 +259,7 @@ def create_patient():
 
 
 @app.route('/delete_patient/<path:id>')
+#@login_required
 def delete_patient(id):
     patient = session.query(Patient).filter(Patient.id == id).all()
     name = patient[0].name
@@ -234,6 +281,7 @@ def clean_date(date):
 
 
 @app.route('/create_reminder/<path:id>/<path:search_id>', methods=['GET', 'POST'])
+#@login_required
 def create_reminder(id, search_id):
     patient = session.query(Patient).filter(Patient.id == id).first()
     if patient.phone_number is None:
@@ -336,6 +384,7 @@ def create_reminder(id, search_id):
                            common_reminder_form=common_reminder_form, search_id=search_id)
         
 @app.route('/results/<path:search_id>', methods=['GET', 'POST'])
+#@login_required
 def results(search_id):
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
@@ -354,6 +403,7 @@ def results(search_id):
     return render_template('results.html', patients=patients, form=form, query=query, search_id=search_id)
 
 @app.route('/newannouncement', methods =['GET', 'POST'])
+#@login_required
 def create_announcement():
         form = NewAnnouncementForm(request.form)
         if form.validate() and request.method == 'POST':
