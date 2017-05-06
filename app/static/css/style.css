@@ -1,4 +1,7 @@
 /*a simple stylesheet*/
+#colorme {
+    background-color: #aaff80;
+}
 
 body {
 	font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
@@ -93,4 +96,16 @@ body {
 
 .push {
 	margin: 50px;
+}
+
+.table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n) > th {
+   background-color: #b7b7b7;
+}
+
+th {
+    padding: 5px;
+}
+
+td {
+    padding: 5px;
 }

@@ -1,0 +1,37 @@
+{% if is_admin %}
+  {% extends "admin_base.html" %}
+{% else %}
+  {% extends "base.html" %}
+{% endif %}
+
+{% block app_content %}
+<p><a class="btn btn-default" href= "{{ url_for('patient_data', id=patient.id, search_id=search_id)}}">Back</a></p>
+
+<h2>Reminders for patient {{patient.name}}:</h2>
+
+				<div class="mx-5">
+					<table class="table table-striped">
+						<tr>
+							<th><b>Message</b></th>
+							<th>Reminder Type</th>
+							<th>Schedule</th>
+                            <th>End on/after</th>
+                            <th></th>
+						</tr>
+						{% for reminder in reminders: %}
+							<tr>
+								<td>{{reminder.message}}</td>
+								<td>{{reminder.reminder_type}}</td>
+								<td>{{reminder.schedule}}</td>
+								<td>{{reminder.end_on}}</td>
+                                <td>
+                                  <p><a class="btn btn-default" href="{{ url_for('delete_reminder', id=patient.id, reminder_id=reminder.id, search_id=search_id)}}" 
+                                      onclick="return confirm('Are you sure you want to delete this reminder?');">Delete Reminder</a></p>
+                                </td>
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
+
+
+{% endblock %}
