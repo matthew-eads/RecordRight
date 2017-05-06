@@ -141,7 +141,7 @@ def generate_search_results(form):
     return search_id  
 
 @app.route('/view_reminders/<path:id>')
-#@login_required
+@login_required
 def view_reminders(id):
     patient = session.query(Patient).filter(Patient.id == id).first()
     reminders = session.query(Reminder).filter(Reminder.patient_id == id).all()
@@ -149,7 +149,7 @@ def view_reminders(id):
 
 
 @app.route('/patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def patient_data(id, search_id):
     # this converts the patient variable, which is a string, into a dict
     patient = session.query(Patient).filter(Patient.id == id).all()
@@ -298,7 +298,7 @@ def delete_announcement(id):
     return redirect(url_for('index'))
 
 @app.route('/delete_reminder/<path:id>/<path:reminder_id>/<path:search_id>')
-#@login_required
+@login_required
 def delete_reminder(id, reminder_id, search_id):
     reminder = session.query(Reminder).filter(Reminder.id == reminder_id).first()
     flash("Deleted reminder")
@@ -491,7 +491,7 @@ def handle_recurrent_form(recurrent_form, common_reminder_form, patient, single_
     return redirect(url_for('patient_data', id=patient.id, search_id=search_id))
 
 @app.route('/create_reminder/<path:id>/<path:search_id>', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def create_reminder(id, search_id):
     patient = session.query(Patient).filter(Patient.id == id).first()
     if patient.phone_number is None:
