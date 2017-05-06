@@ -100,7 +100,7 @@ def create_user():
             session.commit()
             return redirect('index')
     else:
-        flash("Limit entries to 8 characters or fewer")
+        flash("Limit entries to 3-8 characters")
     return render_template('create_user.html', form=form, is_admin=is_admin)
 
 def generate_search_results(form):
@@ -221,7 +221,9 @@ def new_visit(id, search_id):
 	patient = patients[0]
 	form = NewVisitForm(request.form)
 	if request.method == "GET":
-		prepopulate_form(form, patient)
+		today = datetime.date.today().strftime("%m/%d/%Y")
+		form.visit_date.data = today
+		form.patient_note.data = patient.patient_note
 	if form.validate() and request.method == 'POST':
 		patient.patient_note = form.patient_note.data
 
@@ -235,21 +237,8 @@ def new_visit(id, search_id):
 
 		database.session.commit()
 		send_update_to_sms_server(patient)
-		flash("Successfully updated patient {}".format(form.name.data))
 		return redirect(url_for('patient_data', id=id, search_id=search_id))
-	elif request.method == 'POST':
-		flash_errors(form)
-	return render_template('update_patient_data.html', patient=patient, form=form, search_id=search_id, is_admin=is_admin)	   
-
-
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#	  form = LoginForm(request.form)
-#	  sys.stderr.write("FORM IS validated? %s \n" % form.validate())
-#	  if form.validate() and request.method == 'POST':
-#		  # flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
-#		  return redirect('/index')
-#	  return render_template('login.html', title="SignIn", form=form)
+	return render_template('new_visit.html', patient=patient, form=form, search_id=search_id, is_admin=is_admin)	   
 
 @app.route('/new_patient', methods=['GET', 'POST'])
 @login_required
@@ -261,7 +250,10 @@ def create_patient():
 	if form.validate() and request.method == 'POST':
 		notes = {}
 		if form.visit_notes.data is not None and form.visit_notes.data != "":
-			notes[form.visit_date.data] = form.visit_notes.data
+			notes_info = []
+			notes_info.append(form.visit_doctor.data)
+			notes_info.append(form.visit_notes.data)
+			notes[form.visit_date.data] = notes_info
 		new_patient = Patient(name = form.name.data, DOB = clean_date(form.DOB.data), 
 							  hx = form.hx.data, phone_number=form.phone_number.data,
 							  past_visit_notes = notes, address=form.address.data, patient_note=form.patient_note.data)

@@ -24,7 +24,7 @@ body {
 
 .table{
 	overflow-y: scroll;
-	height: 500px;
+	height: 300px;
 	display: block;
 }
 
@@ -36,6 +36,9 @@ body {
 	float:right;
 	clear: right;
 	background-color: #f2f2f2;
+}
+.push {
+	margin: 50px;
 }
 
 .button {
@@ -85,5 +88,9 @@ body {
 }
 
 .narrow {
-	width:6%;
+	width:8%;
+}
+
+.push {
+	margin: 50px;
 }
