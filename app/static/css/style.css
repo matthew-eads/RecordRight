@@ -90,3 +90,7 @@ body {
 .narrow {
 	width:8%;
 }
+
+.push {
+	margin: 50px;
+}
