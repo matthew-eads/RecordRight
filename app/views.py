@@ -130,7 +130,7 @@ def generate_search_results(form):
         current = Patient(name = p['name'], DOB = p['DOB'], id = p['id'], hx = p['hx'], phone_number = p['phone_number'], address = p['address'])
         patients.append(current)
 
-        patients.sort(key=lambda p: p.name.split()[-1])
+        #patients.sort(key=lambda p: p.name.split()[-1])
     connection.commit()
 
     search_data = [patients, form.keyword.data, form]
@@ -173,7 +173,7 @@ def patient_data(id, search_id):
 def send_update_to_sms_server(patient, new=False):
     request_session = FuturesSession()
     date = datetime.datetime.strptime(patient.DOB, "%m/%d/%Y")
-    data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), 
+    data = {"rr_id":str(patient.id), "name":patient.name, "birth_year":str(date.year), 
             "birth_month":str(date.month), "birth_day":str(date.day), 
             "phone_number":patient.phone_number, "address":patient.address, "notes":patient.patient_note}
     path = "add" if new else "update"

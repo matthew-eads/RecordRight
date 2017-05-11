@@ -51,7 +51,7 @@ def main():
   
 def update_patient(patient, field, newval):
     colname = field.lower()
-    print("checking column of {}".format(colname))
+    print(("checking column of {}".format(colname)))
     # a bit hacky... but good enough
     if "name" in colname:
         patient.name = newval

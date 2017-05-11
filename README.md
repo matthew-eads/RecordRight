@@ -2,13 +2,11 @@
 ### Services for using a Electronic Medical Record System tailored to developing 
 regions
 
-See Proposal.md for more information (our project proposal).
+See Proposal.md for more background information (our project proposal).
 
-The main Web server and web UI is in the RRWeb directory.
 
-The delay-tolerant database synchronization is in the RRSync directory.
+## How to use
 
-The SMS interface is in the RRSMS directory.
-
-Please see the README's in those directories for more information on the 
-different components of RecordRight.
+### Requirements:
+* You'll need to install sqlite3 `apt-get install sqlite3` or whatever.
+* 

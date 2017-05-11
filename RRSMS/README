@@ -1,4 +1,4 @@
-See https://www.twilio.com/docs/quickstart/python/sms
+#See https://www.twilio.com/docs/quickstart/python/sms
 
 I'm using virtualenv: see http://docs.python-guide.org/en/latest/dev/virtualenvs/
 and I have a requirements file I'll try to keep up to date, so you can just 
