@@ -29,8 +29,6 @@ class NewVisitForm(Form):
 
 
 class SearchForm(Form):
-	#name = StringField('name')
-	#DOB = StringField('DOB')
 	keyword = StringField('keyword')
 
 class NewUserForm(Form):
