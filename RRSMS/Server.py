@@ -141,7 +141,7 @@ def update_db():
                 "information in your record (such as notes from recent visits) "
                 "or update personal information. Send any message to begin."
                 "Send 'QUIT' at any time to return to the main menu, or 'HELP' for help.")
-            client.messages.create(to=request["phone_number"], from_="+19182387039", body=body)
+            client.messages.create(to=request.values["phone_number"], from_="+19182387039", body=body)
 
 
         patient.name         = request.values.get('name',         patient.name) # not sure if this is the best way
@@ -360,17 +360,22 @@ def process_menu_4(message, patient):
     return (return_body, new_menu_state)
 
 def save_info(col, message, rr_id):
-    client_id = int(request.values['client_id'])
-    updates = db.session.query(models_test.Updates).\
-              filter(models_test.Updates.client_id == client_id).first()
+    #client_id = int(request.values['client_id']) # wait this doesn't make any sense
+    client_ids = db.session.query(models_test.Updates, models_test.Updates.client_id).all()
+    client_ids = [obj[1] for obj in client_ids]
+    for client_id in client_ids:
+        updates = db.session.query(models_test.Updates).\
+                  filter(models_test.Updates.client_id == client_id).first()
 
-    timestamp = time.time()
-    new_update = (rr_id, col, message, timestamp)
-    if updates is None:
-        updates = models_test.Updates(data=[new_update], client_id=client_id)
-        db.session.add(updates)
-    else:
-        updates.data.append(new_update)
+        timestamp = time.time()
+        new_update = (rr_id, col, message, timestamp)
+        if updates is None:
+            updates = models_test.Updates(data=[new_update], client_id=client_id)
+            db.session.add(updates)
+        elif updates.data is None:
+            updates.data = [new_update]
+        else:
+            updates.data.append(new_update)
     db.session.commit()
 
 # The phone number doesn't exist in the db, so lets add it!
