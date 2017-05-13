@@ -30,7 +30,6 @@ is_admin = False
 
 
 # defines a decorator for other functions -- requires a user to be logged in
-# NOTE: we must add the decorator @login_required to all routes
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -45,7 +44,6 @@ def login():
     form = LoginForm(request.form)
     sys.stderr.write("FORM IS validated? %s \n" % form.validate())
     if form.validate() and request.method == 'POST':
-        # flash('Login requested for patient=%s, is_remembered=%s' % (form.username.data, str(form.is_remembered.data)))
         given_username = form.username.data
         given_password = form.password.data
         users =  session.query(User).filter(User.username == given_username).all()
@@ -129,8 +127,8 @@ def generate_search_results(form):
     for p in patient_dicts:
         current = Patient(name = p['name'], DOB = p['DOB'], id = p['id'], hx = p['hx'], phone_number = p['phone_number'], address = p['address'])
         patients.append(current)
-
-        patients.sort(key=lambda p: p.name.split()[-1])
+        # this isn't working properly...
+        #patients.sort(key=lambda p: p.name.split()[-1])
     connection.commit()
 
     search_data = [patients, form.keyword.data, form]
@@ -153,8 +151,8 @@ def view_reminders(id):
 def patient_data(id, search_id):
     # this converts the patient variable, which is a string, into a dict
     patient = session.query(Patient).filter(Patient.id == id).all()
-    # i hate everything
     visit_notes = patient[0].past_visit_notes
+
     # maybe a better way to do this... but this'll work for now
     # keep the visit notes sorted based on date
     if visit_notes is None or len(visit_notes) == 0:
@@ -173,7 +171,7 @@ def patient_data(id, search_id):
 def send_update_to_sms_server(patient, new=False):
     request_session = FuturesSession()
     date = datetime.datetime.strptime(patient.DOB, "%m/%d/%Y")
-    data = {"rr_id":str(id), "name":patient.name, "birth_year":str(date.year), 
+    data = {"rr_id":str(patient.id), "name":patient.name, "birth_year":str(date.year), 
             "birth_month":str(date.month), "birth_day":str(date.day), 
             "phone_number":patient.phone_number, "address":patient.address, "notes":patient.patient_note}
     path = "add" if new else "update"
@@ -193,8 +191,6 @@ def prepopulate_form(form, patient):
 @app.route('/update_patient_data/<path:id>/<path:search_id>', methods=['GET', 'POST'])
 @login_required
 def update_patient_data(id, search_id):
-    # this converts the patient variable, which is a string, into a dict
-    #import pdb; pdb.set_trace()
     patients = session.query(Patient).filter(Patient.id == id).all()
     patient = patients[0]
     form = NewPatientForm(request.form)
@@ -211,7 +207,6 @@ def update_patient_data(id, search_id):
         if form.visit_notes.data is not None and form.visit_notes.data != "":
             if patient.past_visit_notes is None:
                 patient.past_visit_notes = {}
-            #patient.past_visit_notes[form.visit_date.data] = form.visit_notes.data
             notes_info = []
             notes_info.append(form.visit_doctor.data)
             notes_info.append(form.visit_notes.data)
@@ -302,10 +297,9 @@ def delete_announcement(id):
 def delete_reminder(id, reminder_id, search_id):
     reminder = session.query(Reminder).filter(Reminder.id == reminder_id).first()
     flash("Deleted reminder")
-    # fuck
-    # really shouldn't be this complicated
-    # forall reminders, we'll need to delete them from the db (ez)
-    # if its a 'single reminder', we just kill the at job (p ez)
+
+    # forall reminders, we'll need to delete them from the db (ez pz)
+    # if its a 'single reminder', we just kill the at job (ez)
     # if its a 'recurring reminder' we need to:
     #   remove the cron job
     #   remove the at job (if it exists) (this is when it has an end_on value)
@@ -484,7 +478,7 @@ def handle_recurrent_form(recurrent_form, common_reminder_form, patient, single_
         proc.stdin.write(command)
         proc.stdin.close()
 
-    #database.session.add(reminder)
+    # remember, we already added it
     database.session.commit()
 
     flash("Successfully set reminder for {}".format(patient.name))
@@ -532,7 +526,6 @@ def results(search_id):
     form = SearchForm(request.form)
     if form.validate() and request.method == 'POST':
         search_id = generate_search_results(form)
-        # return render_template('results.html', patients=patients, form = form, query = form.keyword.data)
         return redirect(url_for('results', search_id=search_id))
 
     global recent_searches

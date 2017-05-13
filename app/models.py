@@ -59,8 +59,8 @@ class Reminder(Base):
     end_after = Column(Integer)
     cron_command = Column(String)
     at_id = Column(Integer)
-    extra_at_id = Column(Integer) #kill me
-    sched_file_prefix = Column(String) #ugh
+    extra_at_id = Column(Integer) # sorry
+    sched_file_prefix = Column(String) # ugh
 
 config = {"WHOOSH_BASE": WHOOSH_BASE}
 

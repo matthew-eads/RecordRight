@@ -2,7 +2,7 @@ from twilio.rest import TwilioRestClient
 import argparse
 import sys
 import subprocess
-
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--message", help="Specify message to send. If not specified, message is read from stdin")
@@ -16,7 +16,7 @@ to_number = args.number if args.number is not None else input("Enter number to s
 date = args.time if args.time is not None else input("Enter date to send reminder: ")
 
 
-command = "./send_reminder.bash -n {} -m \"{}\"".format(to_number, body)
+command = "{}/send_reminder.bash -n {} -m \"{}\"".format(os.path.dirname(os.path.abspath(__file__)), to_number, body)
 print("command is {}".format(bytes(command, "ascii")))
 proc = subprocess.Popen(['at', date], stdin=subprocess.PIPE)
 proc.stdin.write(bytes(command, "ascii"))
